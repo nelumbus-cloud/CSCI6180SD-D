@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { JobCard } from '@/components/JobCard';
 
 export default function DashboardLayout() {
   return (
@@ -57,11 +58,36 @@ export default function DashboardLayout() {
                         className="pl-10"
                       />
                     </div>
-                    <div className="bg-white p-6 rounded-lg border border-gray-200">
-                      <h2 className="text-xl font-semibold">My Jobs Content</h2>
-                      <p className="mt-2 text-gray-600">
-                        The list of jobs, pagination, and other components for the "My Jobs" tab will be rendered here.
-                      </p>
+                    {/* sample job cards info */}
+                    <div className="space-y-4">
+                      <JobCard
+                        title="Software Engineer, Full Stack"
+                        location="New York City, New York"
+                        status="In Progress"
+                        type="Full Time"
+                        salary="$80k - $150k/yr"
+                        work_location="Remote"
+                        company="Apex Omnitools"
+                        description="salarian-owned omni-tool developer and producer"
+                        requirements={[
+                          "2+ years of professional software engineering",
+                          "Experience in Angular, C#, and .NET Core Web API development"
+                        ]}
+                      />
+                      <JobCard
+                        title="Software Engineer, Full Stack"
+                        location="New York City, New York"
+                        status="In Progress"
+                        type="Full Time"
+                        salary="$80k - $150k/yr"
+                        work_location="Remote"
+                        company="Apex Omnitools"
+                        description="salarian-owned omni-tool developer and producer"
+                        requirements={[
+                          "2+ years of professional software engineering",
+                          "Experience in Angular, C#, and .NET Core Web API development"
+                        ]}
+                      />
                     </div>
                   </div>
 
