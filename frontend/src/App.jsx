@@ -40,7 +40,7 @@ export default function DashboardLayout() {
           </header>
 
           {/* Main Content Grid */}
-          <main className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
+          <main className="grid grid-cols-1 lg:grid-cols-1 gap-8 mt-8">
 
             {/* Left Column (takes 2/3 of the space on large screens) */}
             <div className="lg:col-span-2">
@@ -110,9 +110,20 @@ export default function DashboardLayout() {
                         </CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <p className="text-gray-600">
-                          A component for a matched job posting will go here.
-                        </p>
+                        <JobCard
+                          title="Software Engineer, Full Stack"
+                          location="New York City, New York"
+                          status="In Progress"
+                          type="Full Time"
+                          salary="$80k - $150k/yr"
+                          work_location="Remote"
+                          company="Apex Omnitools"
+                          description="salarian-owned omni-tool developer and producer"
+                          requirements={[
+                            "2+ years of professional software engineering",
+                            "Experience in Angular, C#, and .NET Core Web API development"
+                          ]}
+                        />
                       </CardContent>
                     </Card>
                   </aside>
