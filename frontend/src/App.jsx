@@ -1,4 +1,5 @@
 import { Briefcase, User, Search } from 'lucide-react';
+import { useState } from 'react'; // state hook
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -7,6 +8,99 @@ import { JobCard } from '@/components/JobCard';
 import { ChevronLeft, ChevronRight } from 'lucide-react'; //for pagination arrows
 
 export default function DashboardLayout() {
+  //list of jobs -- 2 hardcoded
+  const [jobs, setJobs] = useState([
+    {
+      title: "Software Engineer, Full Stack",
+      location: "New York City, New York",
+      status: "In Progress",
+      type: "Full Time",
+      salary: "$80k - $150k/yr",
+      work_location: "Remote",
+      company: "Apex Omnitools",
+      description: "salarian-owned omni-tool developer and producer",
+      requirements: [
+        "2+ years of professional software engineering",
+        "Experience in Angular, C#, and .NET Core Web API development"
+      ]
+    },
+    {
+      title: "Software Engineer, Full Stack",
+      location: "New York City, New York",
+      status: "In Progress",
+      type: "Full Time",
+      salary: "$80k - $150k/yr",
+      work_location: "Remote",
+      company: "Apex Omnitools",
+      description: "salarian-owned omni-tool developer and producer",
+      requirements: [
+        "2+ years of professional software engineering",
+        "Experience in Angular, C#, and .NET Core Web API development"
+      ]
+    }
+  ]);
+
+  const pageSize = 10; // 10 jobs per page
+  const [currentPage, setCurrentPage] = useState(1);
+  const [showAddModal, setShowAddModal] = useState(false); //modal for adding new jobs
+  const [newJob, setNewJob] = useState({
+    title: "",
+    location: "",
+    status: "",
+    type: "",
+    salary: "",
+    work_location: "",
+    company: "",
+    description: "",
+    requirementsText: ""
+  });
+
+  const totalPages = Math.max(1, Math.ceil(jobs.length / pageSize)); //at least one page
+  const startIndex = (currentPage - 1) * pageSize;
+  const paginatedJobs = jobs.slice(startIndex, startIndex + pageSize);
+
+  function handleAddJobSubmit(e) {
+    e.preventDefault();
+
+    //convert requirementsText to an array
+    const requirements = newJob.requirementsText
+      .split(',')
+      .map(s => s.trim())
+      .filter(Boolean);
+    const jobToAdd = {
+      title: newJob.title,
+      location: newJob.location,
+      status: newJob.status,
+      type: newJob.type,
+      salary: newJob.salary,
+      work_location: newJob.work_location,
+      company: newJob.company,
+      description: newJob.description,
+      requirements
+    };
+    setJobs(prev => {
+      const next = [...prev, jobToAdd];
+      // jump to last page where the new card will appear
+      const nextTotalPages = Math.max(1, Math.ceil(next.length / pageSize));
+      setCurrentPage(nextTotalPages);
+      return next;
+    });
+
+    //closing modal and resetting the form
+    setShowAddModal(false);
+    setNewJob({
+      title: "",
+      location: "",
+      status: "",
+      type: "",
+      salary: "",
+      work_location: "",
+      company: "",
+      description: "",
+      requirementsText: ""
+    });
+  }
+
   return (
     <div className="bg-gray-50 min-h-screen">
       <div className="container mx-auto p-4 sm:p-6 lg:p-8">
@@ -60,36 +154,26 @@ export default function DashboardLayout() {
                 </div>
                 {/* JobCard column */}
                 <div className="space-y-4">
-                    <JobCard
-                      title="Software Engineer, Full Stack"
-                      location="New York City, New York"
-                      status="In Progress"
-                      type="Full Time"
-                      salary="$80k - $150k/yr"
-                      work_location="Remote"
-                      company="Apex Omnitools"
-                      description="salarian-owned omni-tool developer and producer"
-                      requirements={[
-                        "2+ years of professional software engineering",
-                        "Experience in Angular, C#, and .NET Core Web API development"
-                      ]}
+                    {paginatedJobs.map((job, idx) => (
+                      <JobCard
+                        key={`${job.title}-${idx}`}
+                        title={job.title}
+                        location={job.location}
+                        status={job.status}
+                        type={job.type}
+                        salary={job.salary}
+                        work_location={job.work_location}
+                        company={job.company}
+                        description={job.description}
+                        requirements={job.requirements}
+                      />
+                    ))}
+                    <AddJobCardButton onClick={() => setShowAddModal(true)} />
+                    <Pagination
+                      currentPage={currentPage}
+                      totalPages={totalPages}
+                      onPageChange={setCurrentPage}
                     />
-                    <JobCard
-                      title="Software Engineer, Full Stack"
-                      location="New York City, New York"
-                      status="In Progress"
-                      type="Full Time"
-                      salary="$80k - $150k/yr"
-                      work_location="Remote"
-                      company="Apex Omnitools"
-                      description="salarian-owned omni-tool developer and producer"
-                      requirements={[
-                        "2+ years of professional software engineering",
-                        "Experience in Angular, C#, and .NET Core Web API development"
-                      ]}
-                    />
-                    <AddJobCardButton />
-                    <Pagination />
                   </div>
 
                   {/* Sidebar */}
@@ -131,6 +215,40 @@ export default function DashboardLayout() {
                 </div>
               </TabsContent>
 
+              {showAddModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center">
+                  <div className="absolute inset-0 bg-black/50" onClick={() => setShowAddModal(false)} />
+                  <div className="relative z-10 w-full max-w-xl mx-4">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-lg font-semibold text-gray-800">Add Job</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <form className="space-y-3" onSubmit={handleAddJobSubmit}>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <Input placeholder="Title" value={newJob.title} onChange={e => setNewJob(v => ({ ...v, title: e.target.value }))} />
+                            <Input placeholder="Company" value={newJob.company} onChange={e => setNewJob(v => ({ ...v, company: e.target.value }))} />
+                            <Input placeholder="Location" value={newJob.location} onChange={e => setNewJob(v => ({ ...v, location: e.target.value }))} />
+                            <Input placeholder="Work Location (e.g., Remote)" value={newJob.work_location} onChange={e => setNewJob(v => ({ ...v, work_location: e.target.value }))} />
+                            <Input placeholder="Employment Type" value={newJob.type} onChange={e => setNewJob(v => ({ ...v, type: e.target.value }))} />
+                            <Input placeholder="Status" value={newJob.status} onChange={e => setNewJob(v => ({ ...v, status: e.target.value }))} />
+                            <Input placeholder="Salary" value={newJob.salary} onChange={e => setNewJob(v => ({ ...v, salary: e.target.value }))} />
+                            <Input placeholder="Description" value={newJob.description} onChange={e => setNewJob(v => ({ ...v, description: e.target.value }))} />
+                            <div className="sm:col-span-2">
+                              <Input placeholder="Requirements (comma separated)" value={newJob.requirementsText} onChange={e => setNewJob(v => ({ ...v, requirementsText: e.target.value }))} />
+                            </div>
+                          </div>
+                          <div className="flex justify-end gap-2 pt-2">
+                            <Button type="button" variant="outline" onClick={() => setShowAddModal(false)}>Cancel</Button>
+                            <Button type="submit">Add Job</Button>
+                          </div>
+                        </form>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </div>
+              )}
+
               <TabsContent value="resume-studio">
                 <div className="bg-white p-6 rounded-lg border border-gray-200">
                   <h2 className="text-xl font-semibold">Resume Studio Content</h2>
@@ -157,10 +275,10 @@ export default function DashboardLayout() {
 }
 
 {/* function to add the AddJob button */}
-export function AddJobCardButton() {
+export function AddJobCardButton({ onClick }) {
   return (
     <div className="flex justify-center mt-6">
-      <button className="flex items-center justify-center w-24 h-12 rounded-full bg-purple-200 hover:bg-purple-300 transition shadow-md" aria-label="Add job card">
+      <button onClick={onClick} className="flex items-center justify-center w-24 h-12 rounded-full bg-purple-200 hover:bg-purple-300 transition shadow-md" aria-label="Add job card">
         <span className="text-black text-2xl">+</span>
       </button>
     </div>
@@ -168,25 +286,59 @@ export function AddJobCardButton() {
 }
 
 {/* function to add the pagination */}
-export function Pagination() {
+export function Pagination({ currentPage, totalPages, onPageChange }) {
+  const canPrev = currentPage > 1;
+  const canNext = currentPage < totalPages;
+
+  function renderPageButtons() {
+    const buttons = [];
+    const pushBtn = (page) => {
+      buttons.push(
+        <button
+          key={page}
+          onClick={() => onPageChange(page)}
+          className={`px-4 py-2 text-base rounded-md transition ${page === currentPage ? 'bg-green-300 text-gray-900' : 'text-gray-700 hover:bg-green-300'}`}
+          aria-current={page === currentPage ? 'page' : undefined}
+        >
+          {page}
+        </button>
+      );
+    };
+
+    if (totalPages <= 7) {
+      for (let p = 1; p <= totalPages; p++) pushBtn(p);
+      return buttons;
+    }
+
+    pushBtn(1);
+    if (currentPage > 3) buttons.push(<span key="l-ell" className="px-2 py-1 text-gray-500">...</span>);
+
+    const start = Math.max(2, currentPage - 1);
+    const end = Math.min(totalPages - 1, currentPage + 1);
+    for (let p = start; p <= end; p++) pushBtn(p);
+
+    if (currentPage < totalPages - 2) buttons.push(<span key="r-ell" className="px-2 py-1 text-gray-500">...</span>);
+    pushBtn(totalPages);
+    return buttons;
+  }
+
   return (
     <div className="w-full mt-8">
       <nav className="flex justify-between items-center w-full max-w-4xl mx-auto" aria-label="Pagination">
 
         {/* Previous button */}
-        <Button variant="outline-none" size="sm" className="flex items-center gap-1 text-base text-gray-700 hover:bg-green-300 transition"><ChevronLeft className="h-5 w-5" />Previous
+        <Button variant="outline-none" size="sm" disabled={!canPrev} onClick={() => canPrev && onPageChange(currentPage - 1)} className="flex items-center gap-1 text-base text-gray-700 hover:bg-green-300 transition disabled:opacity-50">
+          <ChevronLeft className="h-5 w-5" />Previous
         </Button>
 
         {/* Page numbers */}
-        <button className="px-4 py-2 text-base rounded-md text-gray-700 hover:bg-green-300 transition">1</button>
-        <button className="px-4 py-2 text-base rounded-md text-gray-700 hover:bg-green-300 transition">2</button>
-        <button className="px-4 py-2 text-base rounded-md text-gray-700 hover:bg-green-300 transition">3</button>
-        <span className="px-2 py-1 text-gray-500">...</span>
-        <button className="px-4 py-2 text-base rounded-md text-gray-700 hover:bg-green-300 transition">98</button>
-        <button className="px-4 py-2 text-base rounded-md text-gray-700 hover:bg-green-300 transition">99</button>
+        <div className="flex items-center gap-1">
+          {renderPageButtons()}
+        </div>
 
         {/* Next button */}
-        <Button variant="outline-none" size="sm" className="flex items-center gap-1 text-base text-gray-700 hover:bg-green-300 transition">Next<ChevronRight className="h-5 w-5" />
+        <Button variant="outline-none" size="sm" disabled={!canNext} onClick={() => canNext && onPageChange(currentPage + 1)} className="flex items-center gap-1 text-base text-gray-700 hover:bg-green-300 transition disabled:opacity-50">
+          Next<ChevronRight className="h-5 w-5" />
         </Button>
       </nav>
     </div>
