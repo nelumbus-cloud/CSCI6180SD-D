@@ -6,6 +6,8 @@ from models import JobApplication, User
 from pydantic import BaseModel, Field
 from datetime import datetime
 
+from routers.external_jobs import router as external_jobs_router
+
 app = FastAPI()
 
 init_db()
@@ -97,3 +99,6 @@ def delete_job(job_id: int, db: Session = Depends(get_db), user_id: int = Depend
     db.delete(job)
     db.commit()
     return {"ok": True}
+
+# Register external jobs router
+app.include_router(external_jobs_router)
