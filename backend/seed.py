@@ -1,5 +1,5 @@
-from database import SessionLocal, init_db
-from models import User, JobApplication
+from backend.app.database import SessionLocal, init_db
+from backend.app.models import User, JobApplication
 from passlib.hash import bcrypt
 from datetime import datetime, timedelta
 
