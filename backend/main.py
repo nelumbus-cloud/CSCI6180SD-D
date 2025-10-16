@@ -5,6 +5,7 @@ from database import SessionLocal, init_db
 from models import JobApplication, User
 from pydantic import BaseModel, Field
 from datetime import datetime
+from fastapi.middleware.cors import CORSMiddleware
 
 from routers.external_jobs import router as external_jobs_router
 
@@ -101,4 +102,11 @@ def delete_job(job_id: int, db: Session = Depends(get_db), user_id: int = Depend
     return {"ok": True}
 
 # Register external jobs router
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"], 
+    allow_credentials=True,
+    allow_methods=["*"],  # Allow all methods (GET, POST, etc.)
+    allow_headers=["*"],  # Allow all headers
+)
 app.include_router(external_jobs_router)
