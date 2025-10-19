@@ -145,16 +145,16 @@ export default function DashboardLayout() {
               <TabsContent value="my-jobs">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                   <div className="lg:col-span-2 mb-6 flex justify-start">
-                  <div className="relative w-full max-w-[calc(50%-1rem)]">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                    <Input
-                      placeholder="Search job title or company name"
-                      className="pl-10 w-full"
-                    />
+                    <div className="relative w-full max-w-[calc(50%-1rem)]">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                      <Input
+                        placeholder="Search job title or company name"
+                        className="pl-10 w-full"
+                      />
+                    </div>
                   </div>
-                </div>
-                {/* JobCard column */}
-                <div className="space-y-4">
+                  {/* JobCard column */}
+                  <div className="space-y-4">
                     {paginatedJobs.map((job, idx) => (
                       <JobCard
                         key={`${job.title}-${idx}`}
@@ -273,7 +273,7 @@ export default function DashboardLayout() {
   );
 }
 
-{/* function to add the AddJob button */}
+{/* function to add the AddJob button */ }
 export function AddJobCardButton({ onClick }) {
   return (
     <div className="flex justify-center mt-6">
@@ -284,7 +284,7 @@ export function AddJobCardButton({ onClick }) {
   )
 }
 
-{/* function to add the pagination */}
+{/* function to add the pagination */ }
 export function Pagination({ currentPage, totalPages, onPageChange }) {
   const canPrev = currentPage > 1;
   const canNext = currentPage < totalPages;

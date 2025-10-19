@@ -7,9 +7,9 @@ from fastapi import APIRouter, Depends, HTTPException, Response, BackgroundTasks
 from fastapi.responses import RedirectResponse
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
-from database import get_db
-from models import User
-from auth import (OAuth2PasswordRequestForm, create_access_token,
+from .database import get_db
+from .models import User
+from .auth import (OAuth2PasswordRequestForm, create_access_token,
                  ACCESS_TOKEN_EXPIRE_MINUTES, UserCreate, pwd_context,
                  authenticate_user, get_current_user,require_role,get_user)
 from datetime import timedelta, datetime
