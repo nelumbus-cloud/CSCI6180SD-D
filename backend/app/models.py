@@ -76,3 +76,21 @@ class User(Base):
     reset_token = Column(String, nullable=True)
     reset_token_expires = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+class Job(Base):
+    __tablename__ = 'jobs'
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(String(36), ForeignKey('users.id'), nullable=False)
+    title = Column(String(200), nullable=False)
+    company = Column(String(200), nullable=False)
+    location = Column(String(200))
+    work_location = Column(String(100))
+    type = Column(String(50))
+    status = Column(String(50), default='In Progress')
+    salary = Column(String(100))
+    description = Column(Text)
+    requirements = Column(Text)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    user = relationship('User')

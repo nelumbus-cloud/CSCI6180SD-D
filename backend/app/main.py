@@ -7,6 +7,7 @@ from .database import engine
 from .models import Base
 from .auth_routes import router as auth_router
 from .external_jobs import router as external_jobs_router
+from .job_routes import router as job_router
 
 import os
 import logging
@@ -59,6 +60,7 @@ Base.metadata.create_all(bind=engine)
 # Include routers from other modules
 app.include_router(auth_router)
 app.include_router(external_jobs_router)
+app.include_router(job_router)
 
 # app.include_router(mail_router)
 
