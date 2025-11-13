@@ -29,3 +29,7 @@ dist-ssr/
 *.njsproj
 *.sln
 *.sw?
+
+#cache file
+
+backend/app/__pycache__

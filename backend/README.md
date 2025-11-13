@@ -10,7 +10,7 @@
 
 2. **Install dependencies:**
    ```sh
-   pip install 'fastapi[all]' sqlalchemy alembic pydantic 'passlib[bcrypt]' python-dotenv
+   pip install 'fastapi[all]' sqlalchemy alembic pydantic 'passlib[bcrypt]' python-dotenv python-jose
    ```
 
 3. **Seed the database:**
@@ -21,7 +21,7 @@
 
 4. **Run the FastAPI server:**
    ```sh
-   uvicorn main:app --reload --port 8000
+   uvicorn app.main:app --reload --port 8000
    ```
 
 - API docs available at: [http://localhost:8000/docs](http://localhost:8000/docs)
