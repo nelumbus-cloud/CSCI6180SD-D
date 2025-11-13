@@ -5,6 +5,9 @@ from .models import Job, User
 from pydantic import BaseModel
 from typing import List, Optional
 import json
+import logging
+
+logger = logging.getLogger(__name__)
 
 #router instance
 router = APIRouter(prefix="/api/jobs", tags=["jobs"])
@@ -177,8 +180,10 @@ def update_job(job_id: str, job_update: JobUpdate, db: Session = Depends(get_db)
     #update provided fields
     update_data = job_update.dict(exclude_unset=True)
 
+    # Handle requirements conversion to JSON
     if "requirements" in update_data:
-        update_data["requirements"] = json.dumps(update_data["requirements"])
+        requirements_json = json.dumps(update_data["requirements"]) if update_data["requirements"] else "[]"
+        update_data["requirements"] = requirements_json
     
     for field, value in update_data.items():
         setattr(job, field, value)
@@ -186,15 +191,29 @@ def update_job(job_id: str, job_update: JobUpdate, db: Session = Depends(get_db)
     db.commit()
     db.refresh(job)
     
+    # Parse requirements from JSON for response
+    requirements = []
     if job.requirements:
         try:
-            job.requirements = json.loads(job.requirements)
+            requirements = json.loads(job.requirements)
         except:
-            job.requirements = []
-    else:
-        job.requirements = []
+            requirements = []
     
-    return job
+    # Return properly formatted response
+    return JobResponse(
+        id=job.id,
+        title=job.title,
+        company=job.company,
+        location=job.location,
+        work_location=job.work_location,
+        type=job.type,
+        status=job.status,
+        salary=job.salary,
+        description=job.description,
+        requirements=requirements,
+        created_at=job.created_at.isoformat() if job.created_at else '',
+        updated_at=job.updated_at.isoformat() if job.updated_at else ''
+    )
 
 #delete a specific job
 @router.delete("/{job_id}")

@@ -28,9 +28,14 @@ SESSION_SECRET_KEY = os.getenv("SESSION_SECRET_KEY")
 # Initialize FastAPI app with lifespan
 app = FastAPI(redirect_slashes=False)
 
-# 2. ADD PROXY HEADERS MIDDLEWARE FIRST
-# This is the most critical fix. It allows the app to trust headers from your Nginx proxy.
-app.add_middleware(ProxyHeadersMiddleware, trusted_hosts="*")
+# Add CORSMiddleware FIRST (it's added last in execution, so it runs first)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Add SessionMiddleware for OAuth state management
 app.add_middleware(
@@ -43,16 +48,8 @@ app.add_middleware(
     domain=".homeinsight.cloud" if APP_ENV == "production" else None
     )
 
-# Add CORSMiddleware for cross-origin requests
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[
-        "*"
-    ],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# ADD PROXY HEADERS MIDDLEWARE LAST (it executes first)
+app.add_middleware(ProxyHeadersMiddleware, trusted_hosts="*")
 
 # Create database tables
 Base.metadata.create_all(bind=engine)
