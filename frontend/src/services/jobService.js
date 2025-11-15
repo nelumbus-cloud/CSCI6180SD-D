@@ -24,7 +24,7 @@ export const jobService = {
         },
         body: JSON.stringify(jobData),
       });
-      
+
       if (!response.ok) {
         const errorText = await response.text();
         throw new Error(`Failed to create job: ${response.status} ${errorText}`);
@@ -66,6 +66,27 @@ export const jobService = {
       return true;
     } catch (error) {
       console.error('Error deleting job:', error);
+      throw error;
+    }
+  },
+
+  async parseJobDescription(text) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/jobs/parse`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to parse job description: ${response.status} ${errorText}`);
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('Error parsing job description:', error);
       throw error;
     }
   }
