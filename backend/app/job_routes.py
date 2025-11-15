@@ -4,6 +4,7 @@ from .database import get_db
 from .models import Job, User
 from pydantic import BaseModel
 from typing import List, Optional
+from datetime import datetime
 import json
 import logging
 
@@ -24,6 +25,10 @@ class JobCreate(BaseModel):
     salary: Optional[str] = None
     description: Optional[str] = None
     requirements: Optional[List[str]] = []
+    interview_date: Optional[datetime] = None
+    follow_up_date: Optional[datetime] = None
+    application_deadline: Optional[datetime] = None
+    offer_deadline: Optional[datetime] = None
 
 class JobUpdate(BaseModel):
     """" schema for updating job records """
@@ -36,6 +41,10 @@ class JobUpdate(BaseModel):
     salary: Optional[str] = None
     description: Optional[str] = None
     requirements: Optional[List[str]] = None
+    interview_date: Optional[datetime] = None
+    follow_up_date: Optional[datetime] = None
+    application_deadline: Optional[datetime] = None
+    offer_deadline: Optional[datetime] = None
 
 class JobResponse(BaseModel):
     """ schema for returning job data """
@@ -49,6 +58,10 @@ class JobResponse(BaseModel):
     salary: Optional[str]
     description: Optional[str]
     requirements: List[str]
+    interview_date: Optional[str] = None
+    follow_up_date: Optional[str] = None
+    application_deadline: Optional[str] = None
+    offer_deadline: Optional[str] = None
     created_at: str
     updated_at: str
 
@@ -70,6 +83,10 @@ class JobResponse(BaseModel):
             'salary': obj.salary,
             'description': obj.description,
             'requirements': obj.requirements if isinstance(obj.requirements, list) else [],
+            'interview_date': obj.interview_date.isoformat() if obj.interview_date else None,
+            'follow_up_date': obj.follow_up_date.isoformat() if obj.follow_up_date else None,
+            'application_deadline': obj.application_deadline.isoformat() if obj.application_deadline else None,
+            'offer_deadline': obj.offer_deadline.isoformat() if obj.offer_deadline else None,
             'created_at': obj.created_at.isoformat() if obj.created_at else '',
             'updated_at': obj.updated_at.isoformat() if obj.updated_at else ''
         }
@@ -107,6 +124,10 @@ def get_jobs(
             salary=job.salary,
             description=job.description,
             requirements=requirements,
+            interview_date=job.interview_date.isoformat() if job.interview_date else None,
+            follow_up_date=job.follow_up_date.isoformat() if job.follow_up_date else None,
+            application_deadline=job.application_deadline.isoformat() if job.application_deadline else None,
+            offer_deadline=job.offer_deadline.isoformat() if job.offer_deadline else None,
             created_at=job.created_at.isoformat() if job.created_at else '',
             updated_at=job.updated_at.isoformat() if job.updated_at else ''
         ))
@@ -129,7 +150,11 @@ def create_job(job: JobCreate, db: Session = Depends(get_db)):
         status=job.status,
         salary=job.salary,
         description=job.description,
-        requirements=requirements_json
+        requirements=requirements_json,
+        interview_date=job.interview_date,
+        follow_up_date=job.follow_up_date,
+        application_deadline=job.application_deadline,
+        offer_deadline=job.offer_deadline
     )
     
     db.add(db_job)
@@ -148,6 +173,10 @@ def create_job(job: JobCreate, db: Session = Depends(get_db)):
         salary=db_job.salary,
         description=db_job.description,
         requirements=job.requirements or [],
+        interview_date=db_job.interview_date.isoformat() if db_job.interview_date else None,
+        follow_up_date=db_job.follow_up_date.isoformat() if db_job.follow_up_date else None,
+        application_deadline=db_job.application_deadline.isoformat() if db_job.application_deadline else None,
+        offer_deadline=db_job.offer_deadline.isoformat() if db_job.offer_deadline else None,
         created_at=db_job.created_at.isoformat() if db_job.created_at else '',
         updated_at=db_job.updated_at.isoformat() if db_job.updated_at else ''
     )
@@ -160,15 +189,31 @@ def get_job(job_id: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Job not found")
     
     #convert requirements from JSON string to list
+    requirements = []
     if job.requirements:
         try:
-            job.requirements = json.loads(job.requirements)
+            requirements = json.loads(job.requirements)
         except:
-            job.requirements = []
-    else:
-        job.requirements = []
+            requirements = []
     
-    return job
+    return JobResponse(
+        id=job.id,
+        title=job.title,
+        company=job.company,
+        location=job.location,
+        work_location=job.work_location,
+        type=job.type,
+        status=job.status,
+        salary=job.salary,
+        description=job.description,
+        requirements=requirements,
+        interview_date=job.interview_date.isoformat() if job.interview_date else None,
+        follow_up_date=job.follow_up_date.isoformat() if job.follow_up_date else None,
+        application_deadline=job.application_deadline.isoformat() if job.application_deadline else None,
+        offer_deadline=job.offer_deadline.isoformat() if job.offer_deadline else None,
+        created_at=job.created_at.isoformat() if job.created_at else '',
+        updated_at=job.updated_at.isoformat() if job.updated_at else ''
+    )
 
 #update specific job
 @router.put("/{job_id}", response_model=JobResponse)
@@ -211,6 +256,10 @@ def update_job(job_id: str, job_update: JobUpdate, db: Session = Depends(get_db)
         salary=job.salary,
         description=job.description,
         requirements=requirements,
+        interview_date=job.interview_date.isoformat() if job.interview_date else None,
+        follow_up_date=job.follow_up_date.isoformat() if job.follow_up_date else None,
+        application_deadline=job.application_deadline.isoformat() if job.application_deadline else None,
+        offer_deadline=job.offer_deadline.isoformat() if job.offer_deadline else None,
         created_at=job.created_at.isoformat() if job.created_at else '',
         updated_at=job.updated_at.isoformat() if job.updated_at else ''
     )

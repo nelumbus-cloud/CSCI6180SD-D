@@ -75,6 +75,8 @@ class User(Base):
     is_active = Column(Boolean, default=True)
     reset_token = Column(String, nullable=True)
     reset_token_expires = Column(DateTime, nullable=True)
+    #google calendar integration
+    google_calendar_token = Column(Text, nullable=True)  #stores serialized token
     created_at = Column(DateTime, default=datetime.utcnow)
 
 class Job(Base):
@@ -90,6 +92,11 @@ class Job(Base):
     salary = Column(String(100))
     description = Column(Text)
     requirements = Column(Text)
+    #dates for calendar integration
+    interview_date = Column(DateTime, nullable=True)
+    follow_up_date = Column(DateTime, nullable=True)
+    application_deadline = Column(DateTime, nullable=True)
+    offer_deadline = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
