@@ -12,6 +12,9 @@ import { NotesModal } from '@/components/NotesModal';
 import { DashboardSidebar } from '@/components/DashboardSidebar';
 import NewFeed from '@/components/NewFeed';
 import { StickyNote } from 'lucide-react';
+//
+ import ResumeBuilder from '@/components/ResumeBuilder';
+//
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState('my-jobs');
@@ -272,12 +275,7 @@ export default function Dashboard() {
           </TabsContent>
 
           <TabsContent value="resume-studio">
-            <div className="bg-white p-8 rounded-lg border border-slate-200 shadow-sm">
-              <h2 className="text-2xl font-semibold text-slate-900">Resume Studio</h2>
-              <p className="mt-4 text-slate-600">
-                The resume builder, templates, and related components will be rendered here.
-              </p>
-            </div>
+            <ResumeBuilder />
           </TabsContent>
 
           <TabsContent value="feed">
