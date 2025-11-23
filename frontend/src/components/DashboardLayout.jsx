@@ -1,8 +1,27 @@
+import { useState } from 'react';
 import { Briefcase, User, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function DashboardLayout({ children, activeTab, onTabChange }) {
+    const { user, logout } = useAuth();
+    const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+    const handleLogout = async () => {
+        setIsLoggingOut(true);
+        try {
+            await logout();
+            // The AuthContext will update and App.jsx will redirect to login
+        } catch (error) {
+            console.error('Logout error:', error);
+            // Even if logout fails, try to clear local state
+            await logout();
+        } finally {
+            setIsLoggingOut(false);
+        }
+    };
+
     return (
         <div className="bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen">
             <div className="container mx-auto p-4 sm:p-6 lg:p-8 max-w-7xl">
@@ -32,13 +51,24 @@ export default function DashboardLayout({ children, activeTab, onTabChange }) {
 
                             {/* Right: User Actions */}
                             <div className="flex items-center gap-2 whitespace-nowrap">
-                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0 hover:bg-slate-100">
+                                {user && (
+                                    <span className="text-sm text-slate-600 hidden sm:inline">
+                                        {user.username}
+                                    </span>
+                                )}
+                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0 hover:bg-slate-100" title={user?.email || 'Profile'}>
                                     <User className="h-4 w-4 text-slate-600" />
                                     <span className="sr-only">Profile</span>
                                 </Button>
-                                <Button variant="outline" size="sm" className="border-slate-300 hover:bg-slate-50 h-8 px-3 text-sm">
+                                <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    className="border-slate-300 hover:bg-slate-50 h-8 px-3 text-sm"
+                                    onClick={handleLogout}
+                                    disabled={isLoggingOut}
+                                >
                                     <LogOut className="h-3.5 w-3.5 mr-1.5" />
-                                    Logout
+                                    {isLoggingOut ? 'Logging out...' : 'Logout'}
                                 </Button>
                             </div>
                         </div>

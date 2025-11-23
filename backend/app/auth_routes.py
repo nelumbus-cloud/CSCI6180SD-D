@@ -7,9 +7,9 @@ from fastapi import APIRouter, Depends, HTTPException, Response, BackgroundTasks
 from fastapi.responses import RedirectResponse
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
-from .database import get_db
-from .models import User
-from .auth import (OAuth2PasswordRequestForm, create_access_token,
+from database import get_db
+from models import User
+from auth import (OAuth2PasswordRequestForm, create_access_token,
                  ACCESS_TOKEN_EXPIRE_MINUTES, UserCreate, pwd_context,
                  authenticate_user, get_current_user,require_role,get_user)
 from datetime import timedelta, datetime
@@ -28,7 +28,7 @@ APP_ENV = os.getenv("APP_ENV")
 SECRET_KEY = os.getenv("AUTH_SECRET_KEY")
 ALGORITHM = os.getenv("AUTH_ALGORITHM")
 
-router = APIRouter()
+router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 # Pydantic models for forgot/reset password
 class ForgotPasswordRequest(BaseModel):
@@ -58,12 +58,65 @@ def send_email(to_email: str, subject: str, body: str):
         server.login(smtp_username, smtp_password)
         server.send_message(msg)
 
+# @router.post("/signup")
+# def signup(user: UserCreate, db: Session = Depends(get_db)):
+#     # Check if user already exists
+#     db_user = db.query(User).filter(User.username == user.username).first()
+#     if db_user:
+#         raise HTTPException(status_code=400, detail="Username already registered")
+#     # Create new user
+#     hashed_password = pwd_context.hash(user.password)
+#     new_user = User(
+#         username=user.username,
+#         contact_email=user.contact_email,
+#         hashed_password=hashed_password,
+#         role="user"
+#     )
+#     db.add(new_user)
+#     db.commit()
+#     db.refresh(new_user)
+#     # Create access token for the new user
+#     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+#     access_token = create_access_token(
+#         data={"sub": new_user.username},
+#         expires_delta=access_token_expires
+#     )
+#     # Create response with token cookie
+#     response = JSONResponse(content={
+#         "username": new_user.username,
+#         # "role": new_user.role,
+#         "message": "Account created and logged in successfully"
+#     })
+#     # Set the authentication cookie
+#     cookie_args = {
+#         "key": "token",
+#         "value": access_token,
+#         "httponly": True,
+#         "secure": True,
+#         "samesite": "none",
+#         "max_age": ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+#         "path": "/"
+#     }
+
+#     if APP_ENV == "production":
+#         cookie_args["domain"] = ".homeinsight.cloud"
+
+#     response.set_cookie(**cookie_args)
+#     return response
+
+
 @router.post("/signup")
 def signup(user: UserCreate, db: Session = Depends(get_db)):
-    # Check if user already exists
+    # Check if username already exists
     db_user = db.query(User).filter(User.username == user.username).first()
     if db_user:
         raise HTTPException(status_code=400, detail="Username already registered")
+
+    # Check if email already exists
+    db_email = db.query(User).filter(User.contact_email == user.contact_email).first()
+    if db_email:
+        raise HTTPException(status_code=400, detail="Email already registered")
+
     # Create new user
     hashed_password = pwd_context.hash(user.password)
     new_user = User(
@@ -72,37 +125,37 @@ def signup(user: UserCreate, db: Session = Depends(get_db)):
         hashed_password=hashed_password,
         role="user"
     )
+
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
-    # Create access token for the new user
+
+    # Create access token
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         data={"sub": new_user.username},
         expires_delta=access_token_expires
     )
-    # Create response with token cookie
+
     response = JSONResponse(content={
         "username": new_user.username,
-        # "role": new_user.role,
         "message": "Account created and logged in successfully"
     })
-    # Set the authentication cookie
+
     cookie_args = {
         "key": "token",
         "value": access_token,
         "httponly": True,
-        "secure": True,
-        "samesite": "none",
+        "secure": False,  # for localhost
+        "samesite": "lax",  # for localhost
         "max_age": ACCESS_TOKEN_EXPIRE_MINUTES * 60,
         "path": "/"
     }
 
-    if APP_ENV == "production":
-        cookie_args["domain"] = ".homeinsight.cloud"
-
     response.set_cookie(**cookie_args)
+
     return response
+
 
 @router.post("/token")
 async def login(

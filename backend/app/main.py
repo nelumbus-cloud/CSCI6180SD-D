@@ -3,13 +3,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
 from contextlib import asynccontextmanager
-from .database import engine
-from .models import Base
-from .auth_routes import router as auth_router
-from .external_jobs import router as external_jobs_router
-from .job_routes import router as job_router
-from .calendar_routes import router as calendar_router
-from .job_parser_routes import router as job_parser_router
+from database import engine
+from models import Base
+from auth_routes import router as auth_router
+from external_jobs import router as external_jobs_router
+from job_routes import router as job_router
+from calendar_routes import router as calendar_router
+from job_parser_routes import router as job_parser_router
+from resume_routes import router as resume_router
 
 import os
 import logging
@@ -47,7 +48,7 @@ app.add_middleware(
     same_site="lax",
     https_only=True if APP_ENV == "production" else False,
     max_age=3600,
-    domain=".homeinsight.cloud" if APP_ENV == "production" else None
+    domain=".builder.cloud" if APP_ENV == "production" else None
     )
 
 # ADD PROXY HEADERS MIDDLEWARE LAST (it executes first)
@@ -62,6 +63,8 @@ app.include_router(external_jobs_router)
 app.include_router(job_router)
 app.include_router(calendar_router)
 app.include_router(job_parser_router)
+app.include_router(resume_router)
+app.include_router(resume_router)
 
 # app.include_router(mail_router)
 

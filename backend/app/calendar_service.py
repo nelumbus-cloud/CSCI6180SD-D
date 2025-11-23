@@ -8,7 +8,7 @@ from google_auth_oauthlib.flow import Flow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from sqlalchemy.orm import Session
-from .models import User
+from models import User
 from dotenv import load_dotenv
 
 load_dotenv("../.env")

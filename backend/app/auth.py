@@ -243,8 +243,8 @@ from passlib.context import CryptContext
 from datetime import datetime, timedelta
 from typing import Optional, List
 from sqlalchemy.orm import Session
-from .database import get_db
-from .models import User
+from database import get_db
+from models import User
 from pydantic import BaseModel
 from dotenv import load_dotenv
 import os

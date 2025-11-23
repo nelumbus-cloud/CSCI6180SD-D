@@ -2,10 +2,10 @@ from fastapi import APIRouter, Depends, HTTPException, Request, Query
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 from typing import Optional
-from .database import get_db
-from .models import User, Job
-from .auth import get_current_user
-from .calendar_service import (
+from database import get_db
+from models import User, Job
+from auth import get_current_user
+from calendar_service import (
     get_authorization_url,
     get_oauth_flow,
     save_credentials,

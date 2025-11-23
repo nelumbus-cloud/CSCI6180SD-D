@@ -1,64 +1,37 @@
-import React, { createContext, useState, useContext } from "react";
+import React, { useState } from "react";
+import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import Dashboard from "./Dashboard";
-
-// Auth Context and Provider
-const AuthContext = createContext();
-
-export const useAuth = () => useContext(AuthContext);
-
-const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-
-  const login = (userData) => setUser(userData);
-  const logout = () => setUser(null);
-
-  return (
-    <AuthContext.Provider value={{ user, login, logout }}>
-      {children}
-    </AuthContext.Provider>
-  );
-};
-
-// Login Component Example
-const Login = ({ onLogin }) => {
-  const { login } = useAuth();
-
-  const handleLogin = () => {
-    login({ username: "user" });
-    onLogin();
-  };
-
-  return (
-    <div>
-      <h2>Login</h2>
-      <button onClick={handleLogin}>Log in</button>
-    </div>
-  );
-};
+import Login from "./components/Login";
+import Signup from "./components/Signup";
 
 // App Component (SPA)
 const App = () => {
-  const { user } = useAuth();
-  const [currentPage, setCurrentPage] = useState("login");
+  const { user, loading } = useAuth();
+  const [showSignup, setShowSignup] = useState(false);
 
-  // If user is logged in, show dashboard, otherwise show login
-  React.useEffect(() => {
-    if (user) {
-      setCurrentPage("dashboard");
-    } else {
-      setCurrentPage("login");
-    }
-  }, [user]);
+  // Show loading state while checking authentication
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mb-4"></div>
+          <p className="text-slate-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
-  return (
-    <AuthProvider>
-      {currentPage === "dashboard" ? (
-        <Dashboard />
-      ) : (
-        <Login onLogin={() => setCurrentPage("dashboard")} />
-      )}
-    </AuthProvider>
-  );
+  // If user is authenticated, show dashboard
+  if (user) {
+    return <Dashboard />;
+  }
+
+  // Otherwise show login or signup
+  if (showSignup) {
+    return <Signup onSwitchToLogin={() => setShowSignup(false)} />;
+  }
+
+  return <Login onSwitchToSignup={() => setShowSignup(true)} />;
 };
 
 export default () => (

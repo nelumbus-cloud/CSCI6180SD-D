@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import Optional, List
-from .gemini_service import parse_job_description
+from gemini_service import parse_job_description
 
 router = APIRouter(prefix="/api/jobs", tags=["jobs"])
 

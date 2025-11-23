@@ -675,10 +675,14 @@ import EducationForm from './EducationForm';
 import SkillsForm from './SkillsForm';
 import ProjectsForm from './ProjectsForm';
 import ResumePreview from './ResumePreview';
+import { resumeService } from '@/services/resumeService';
 
 export default function ResumeBuilder() {
   const [activeSection, setActiveSection] = useState('personal');
   const [previewMode, setPreviewMode] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState(null);
   
   const [resumeData, setResumeData] = useState({
     personal: {
@@ -702,27 +706,57 @@ export default function ResumeBuilder() {
 
   const loadResumeData = async () => {
     try {
-      const result = await window.storage.get('resume-data');
-      if (result && result.value) {
-        setResumeData(JSON.parse(result.value));
-      }
+      setLoading(true);
+      setError(null);
+      const data = await resumeService.getResume();
+      setResumeData(data);
     } catch (error) {
-      console.log('No saved resume data found');
+      console.error('Error loading resume:', error);
+      setError(error.message || 'Failed to load resume');
+      // Keep default empty state on error
+    } finally {
+      setLoading(false);
     }
   };
 
-  const saveResumeData = async (data) => {
-    try {
-      await window.storage.set('resume-data', JSON.stringify(data));
-    } catch (error) {
-      console.error('Error saving resume:', error);
-    }
-  };
-
-  const updateResumeData = (section, data) => {
+  const updateResumeData = async (section, data) => {
     const updated = { ...resumeData, [section]: data };
     setResumeData(updated);
-    saveResumeData(updated);
+    
+    // Save to backend
+    try {
+      setSaving(true);
+      setError(null);
+      
+      // Use specific update methods for each section
+      switch (section) {
+        case 'personal':
+          await resumeService.updatePersonalInfo(data);
+          break;
+        case 'experience':
+          await resumeService.updateExperience(data);
+          break;
+        case 'education':
+          await resumeService.updateEducation(data);
+          break;
+        case 'skills':
+          await resumeService.updateSkills(data);
+          break;
+        case 'projects':
+          await resumeService.updateProjects(data);
+          break;
+        default:
+          // Fallback to full save
+          await resumeService.saveResume(updated);
+      }
+    } catch (error) {
+      console.error('Error saving resume:', error);
+      setError(error.message || 'Failed to save resume');
+      // Revert the update on error
+      setResumeData(resumeData);
+    } finally {
+      setSaving(false);
+    }
   };
 
   if (previewMode) {
@@ -734,13 +768,33 @@ export default function ResumeBuilder() {
     );
   }
 
+  if (loading) {
+    return (
+      <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-6">
+        <div className="text-center py-12">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mb-4"></div>
+          <p className="text-slate-600">Loading resume...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-white rounded-lg border border-slate-200 shadow-sm">
       <div className="p-6 border-b border-slate-200 flex justify-between items-center">
-        <h2 className="text-2xl font-semibold text-slate-900">Resume Builder</h2>
+        <div>
+          <h2 className="text-2xl font-semibold text-slate-900">Resume Builder</h2>
+          {saving && (
+            <p className="text-sm text-slate-500 mt-1">Saving...</p>
+          )}
+          {error && (
+            <p className="text-sm text-red-600 mt-1">{error}</p>
+          )}
+        </div>
         <button
           onClick={() => setPreviewMode(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50"
+          disabled={saving}
         >
           <Eye className="w-4 h-4" />
           Preview

@@ -71,7 +71,7 @@ class User(Base):
     username = Column(String(50), unique=True, nullable=False)
     contact_email = Column(String(100), unique=True, nullable=False)
     hashed_password = Column(String(100), nullable=True)
-    role = Column(String(20), nullable=False)  # e.g., "admin", "unsubscribeduser", "subscribeduser", "newuser", "freeuser"
+    role = Column(String(20), nullable=False) 
     is_active = Column(Boolean, default=True)
     reset_token = Column(String, nullable=True)
     reset_token_expires = Column(DateTime, nullable=True)
@@ -97,6 +97,21 @@ class Job(Base):
     follow_up_date = Column(DateTime, nullable=True)
     application_deadline = Column(DateTime, nullable=True)
     offer_deadline = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    user = relationship('User')
+
+class Resume(Base):
+    __tablename__ = 'resumes'
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(String(36), ForeignKey('users.id'), nullable=False)
+    # Store all resume data as JSON
+    personal_info = Column(Text)  # JSON: {fullName, email, phone, location, linkedin, portfolio, summary}
+    experience = Column(Text)  # JSON array: [{id, company, position, startDate, endDate, current, description}]
+    education = Column(Text)  # JSON array: [{id, school, degree, field, startDate, endDate, gpa}]
+    skills = Column(Text)  # JSON array: [{id, name, level}]
+    projects = Column(Text)  # JSON array: [{id, name, description, technologies, link}]
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
