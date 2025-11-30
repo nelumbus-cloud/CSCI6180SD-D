@@ -1,270 +1,307 @@
-# CareerHub - Job Application Tracker & Resume Builder
+# CareerHub
 
-A full-stack web application to help job seekers manage their job search journey. Track applications, build professional resumes, sync with Google Calendar, and discover new opportunities — all in one place.
+## Job Application Tracker and Resume Builder
 
----
+CareerHub is a full-stack web application designed to help job seekers manage their job search process. The application provides tools for tracking job applications, building professional resumes, synchronizing important dates with Google Calendar, and discovering new job opportunities.
 
-## What is CareerHub?
+## Table of Contents
 
-If you've ever applied to dozens of jobs and lost track of which ones you've heard back from, which interviews are coming up, or what version of your resume you sent — this app is for you.
+1. [Overview](#overview)
+2. [Technology Stack](#technology-stack)
+3. [Project Structure](#project-structure)
+4. [Installation](#installation)
+5. [Features](#features)
+6. [API Reference](#api-reference)
+7. [Docker Deployment](#docker-deployment)
+8. [Testing](#testing)
+9. [Contributing](#contributing)
+10. [Known Limitations](#known-limitations)
+11. [License](#license)
 
-CareerHub lets you:
-- **Track your job applications** with status updates, deadlines, and notes
-- **Build and manage your resume** with a clean, section-by-section editor
-- **Sync important dates to Google Calendar** so you never miss an interview
-- **Discover new job opportunities** from external job boards
-- **Parse job descriptions with AI** to auto-fill application details (powered by Google Gemini)
+## Overview
 
----
+CareerHub addresses common challenges faced by job seekers during their application process. The application provides the following core functionalities:
 
-## Tech Stack
+1. Track job applications with status updates, deadlines, and notes
+2. Build and manage resumes with a section-by-section editor
+3. Sync important dates to Google Calendar to avoid missing interviews
+4. Discover new job opportunities from external job boards
+5. Parse job descriptions using AI to automatically extract application details
+
+## Technology Stack
 
 ### Backend
-- **FastAPI** — Python web framework for building APIs
-- **SQLAlchemy** — ORM for database operations
-- **SQLite** — Lightweight database (easily swappable)
-- **Google Gemini AI** — For parsing job descriptions
-- **Google Calendar API** — For calendar integration
+
+The backend is built using the following technologies:
+
+| Technology | Purpose |
+|------------|---------|
+| FastAPI | Python web framework for building REST APIs |
+| SQLAlchemy | Object-Relational Mapping for database operations |
+| SQLite | Lightweight relational database |
+| Google Gemini AI | Natural language processing for job description parsing |
+| Google Calendar API | Calendar integration for event synchronization |
 
 ### Frontend
-- **React 19** — UI library
-- **Vite** — Fast build tool and dev server
-- **Tailwind CSS 4** — Utility-first styling
-- **Radix UI** — Accessible component primitives
-- **Lucide React** — Beautiful icons
 
----
+The frontend utilizes the following technologies:
+
+| Technology | Purpose |
+|------------|---------|
+| React 19 | JavaScript library for building user interfaces |
+| Vite | Build tool and development server |
+| Tailwind CSS 4 | Utility-first CSS framework |
+| Radix UI | Accessible component primitives |
+| Lucide React | Icon library |
 
 ## Project Structure
 
+The project is organized into two main directories: backend and frontend.
+
 ```
 CSCI6180SD-D/
-├── backend/
-│   ├── app/
-│   │   ├── main.py              # FastAPI app entry point
-│   │   ├── models.py            # Database models (User, Job, Resume)
-│   │   ├── database.py          # Database connection setup
-│   │   ├── auth.py              # Authentication helpers
-│   │   ├── auth_routes.py       # Login, signup, password reset
-│   │   ├── job_routes.py        # CRUD for job applications
-│   │   ├── resume_routes.py     # Resume builder API
-│   │   ├── calendar_routes.py   # Google Calendar integration
-│   │   ├── calendar_service.py  # Calendar sync logic
-│   │   ├── job_parser_routes.py # AI job description parser
-│   │   ├── gemini_service.py    # Google Gemini AI integration
-│   │   └── external_jobs.py     # External job board integration
-│   ├── requirements.txt         # Python dependencies
-│   ├── Dockerfile               # Container setup
-│   └── seed.py                  # Database seeder
-│
-├── frontend/
-│   ├── src/
-│   │   ├── App.jsx              # Main app component
-│   │   ├── Dashboard.jsx        # Main dashboard view
-│   │   ├── components/
-│   │   │   ├── Login.jsx        # Login form
-│   │   │   ├── Signup.jsx       # Registration form
-│   │   │   ├── JobCard.jsx      # Individual job display
-│   │   │   ├── JobList.jsx      # Job listing grid
-│   │   │   ├── JobFormModal.jsx # Add/edit job form
-│   │   │   ├── ResumeBuilder.jsx # Resume editor
-│   │   │   ├── ResumePreview.jsx # Resume PDF preview
-│   │   │   ├── NewFeed.jsx      # External job listings
-│   │   │   ├── Settings.jsx     # User settings & integrations
-│   │   │   ├── DashboardSidebar.jsx # Upcoming interviews & suggestions
-│   │   │   └── ui/              # Reusable UI components
-│   │   ├── contexts/
-│   │   │   └── AuthContext.jsx  # Authentication state
-│   │   └── services/
-│   │       ├── authService.js   # Auth API calls
-│   │       ├── jobService.js    # Job API calls
-│   │       ├── resumeService.js # Resume API calls
-│   │       └── calendarService.js # Calendar API calls
-│   ├── package.json             # Node dependencies
-│   └── vite.config.js           # Vite configuration
-│
-└── README.md                    # You're reading it!
+    backend/
+        app/
+            main.py                 FastAPI application entry point
+            models.py               Database models (User, Job, Resume)
+            database.py             Database connection configuration
+            auth.py                 Authentication helper functions
+            auth_routes.py          Authentication endpoints (login, signup, password reset)
+            job_routes.py           Job application CRUD operations
+            resume_routes.py        Resume builder API endpoints
+            calendar_routes.py      Google Calendar integration endpoints
+            calendar_service.py     Calendar synchronization logic
+            job_parser_routes.py    AI job description parser endpoint
+            gemini_service.py       Google Gemini AI integration
+            external_jobs.py        External job board integration
+        requirements.txt            Python dependencies
+        Dockerfile                  Container configuration
+        seed.py                     Database seeder script
+
+    frontend/
+        src/
+            App.jsx                 Main application component
+            Dashboard.jsx           Dashboard view component
+            components/
+                Login.jsx           Login form component
+                Signup.jsx          Registration form component
+                JobCard.jsx         Job display component
+                JobList.jsx         Job listing grid component
+                JobFormModal.jsx    Add/edit job form component
+                ResumeBuilder.jsx   Resume editor component
+                ResumePreview.jsx   Resume PDF preview component
+                NewFeed.jsx         External job listings component
+                Settings.jsx        User settings component
+                DashboardSidebar.jsx    Sidebar with interviews and suggestions
+                ui/                 Reusable UI components
+            contexts/
+                AuthContext.jsx     Authentication state management
+            services/
+                authService.js      Authentication API service
+                jobService.js       Job API service
+                resumeService.js    Resume API service
+                calendarService.js  Calendar API service
+        package.json                Node.js dependencies
+        vite.config.js              Vite configuration
+
+    README.md                       Project documentation
 ```
 
----
-
-## Getting Started
+## Installation
 
 ### Prerequisites
-- **Python 3.11+** — for the backend
-- **Node.js 18+** — for the frontend
-- **Google Cloud Console account** — for Gemini AI and Calendar API (optional but recommended)
 
-### 1. Clone the Repository
+Before installing the application, ensure the following software is installed on your system:
+
+1. Python 3.11 or higher (for the backend)
+2. Node.js 18 or higher (for the frontend)
+3. Google Cloud Console account (optional, for Gemini AI and Calendar API features)
+
+### Step 1: Clone the Repository
 
 ```bash
 git clone https://github.com/nelumbus-cloud/CSCI6180SD-D.git
 cd CSCI6180SD-D
 ```
 
-### 2. Set Up the Backend
+### Step 2: Backend Setup
+
+Navigate to the backend directory and create a virtual environment:
 
 ```bash
 cd backend
-
-# Create a virtual environment
 python -m venv venv
+```
 
-# Activate it
-# On Windows:
+Activate the virtual environment:
+
+On Windows:
+```bash
 venv\Scripts\activate
-# On Mac/Linux:
-source venv/bin/activate
+```
 
-# Install dependencies
+On macOS/Linux:
+```bash
+source venv/bin/activate
+```
+
+Install the required dependencies:
+
+```bash
 pip install -r requirements.txt
 ```
 
-#### Configure Environment Variables
+### Step 3: Environment Configuration
 
-Create a `.env` file in the `backend/` directory:
+Create a `.env` file in the `backend/` directory with the following variables:
 
-```env
-# Google Gemini AI (for job description parsing)
+```
 GEMINI_API_KEY=your_gemini_api_key_here
 GEMINI_MODEL=gemini-2.5-flash
-
-# Session security
 SESSION_SECRET_KEY=your-random-secret-key
 AUTH_SECRET_KEY=your-jwt-secret-key
-
-# Google Calendar OAuth (optional)
 GOOGLE_CLIENT_ID=your_google_client_id
 GOOGLE_CLIENT_SECRET=your_google_client_secret
 GOOGLE_REDIRECT_URI=http://localhost:8000/api/calendar/oauth2callback
-
-# Frontend URL (for redirects)
 FRONTEND_URL=http://localhost:5173
-
-# Environment
 APP_ENV=development
 ```
 
-> **Where to get API keys:**
-> - **Gemini API Key**: [Google AI Studio](https://aistudio.google.com/app/apikey)
-> - **Google OAuth Credentials**: [Google Cloud Console](https://console.cloud.google.com/) → APIs & Services → Credentials
+To obtain the required API keys:
 
-#### Seed the Database (Optional)
+1. Gemini API Key: Visit https://aistudio.google.com/app/apikey
+2. Google OAuth Credentials: Visit https://console.cloud.google.com/, navigate to APIs and Services, then Credentials
+
+### Step 4: Database Initialization (Optional)
+
+To populate the database with sample data, run:
 
 ```bash
 python seed.py
 ```
 
-This adds a test user and some sample job data.
+This creates a test user and sample job application data.
 
-#### Start the Backend Server
+### Step 5: Start the Backend Server
 
 ```bash
 cd app
 uvicorn main:app --reload --port 8000
 ```
 
-The API will be available at `http://localhost:8000`. Check out the interactive docs at `http://localhost:8000/docs`.
+The API will be available at http://localhost:8000. Interactive API documentation is available at http://localhost:8000/docs.
 
----
+### Step 6: Frontend Setup
 
-### 3. Set Up the Frontend
-
-Open a new terminal:
+Open a new terminal window and navigate to the frontend directory:
 
 ```bash
 cd frontend
-
-# Install dependencies
 npm install
-
-# Start the dev server
 npm run dev
 ```
 
-The app will open at `http://localhost:5173`.
+The application will be accessible at http://localhost:5173.
 
 ---
 
 ## Features
 
-### 📋 Job Tracking
-- Add jobs manually or paste a job description and let AI extract the details
-- Track status: Applied, Interview, Offer, Rejected, etc.
-- Set important dates: interview date, application deadline, follow-up reminders
-- Search and filter your job list
+### Job Tracking
 
-### 📝 Resume Builder
-- Clean, section-based editor: Personal Info, Experience, Education, Skills, Projects
-- Auto-saves as you type (debounced to avoid excessive API calls)
-- Preview your resume before downloading
-- Export to PDF
+The job tracking module allows users to manage their job applications. Key capabilities include:
 
-### 📅 Google Calendar Integration
-- Connect your Google account in Settings
-- Sync interview dates, deadlines, and follow-ups to your calendar
-- One-click "Add to Calendar" from the dashboard sidebar
+1. Manual job entry or AI-assisted parsing of job descriptions
+2. Status tracking with options including Applied, Interview, Offer, and Rejected
+3. Important date management for interviews, application deadlines, and follow-up reminders
+4. Search and filter functionality across all saved jobs
 
-### 🔍 Job Discovery
-- Browse remote job listings from [Remotive](https://remotive.com/)
-- Get personalized job suggestions based on your saved applications
-- Save interesting jobs for later
+### Resume Builder
 
-### 🤖 AI-Powered Job Parsing
-- Paste any job description into the "Add Job" form
-- Click "Parse with AI" and Gemini extracts: title, company, location, salary, requirements
-- Review and save — no more manual copying!
+The resume builder provides a structured approach to resume creation:
 
----
+1. Section-based editor covering Personal Information, Experience, Education, Skills, and Projects
+2. Automatic saving with debounced API calls to prevent data loss
+3. Preview functionality before downloading
+4. PDF export capability
 
-## API Endpoints
+### Google Calendar Integration
 
-### Authentication
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/auth/signup` | Create a new account |
-| POST | `/api/auth/token` | Log in and get a token |
-| GET | `/api/auth/me` | Get current user info |
-| POST | `/api/auth/forgot-password` | Request password reset |
-| POST | `/api/auth/reset-password` | Reset password with token |
+Calendar integration enables synchronization of job-related events:
 
-### Jobs
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/jobs/` | Get all user's jobs |
-| POST | `/api/jobs/` | Create a new job |
-| GET | `/api/jobs/{id}` | Get a specific job |
-| PUT | `/api/jobs/{id}` | Update a job |
-| DELETE | `/api/jobs/{id}` | Delete a job |
-| POST | `/api/jobs/parse` | Parse job description with AI |
+1. Google account connection through the Settings page
+2. Automatic synchronization of interview dates, deadlines, and follow-up reminders
+3. One-click calendar event creation from the dashboard sidebar
 
-### Resume
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/resume/` | Get user's resume |
-| POST | `/api/resume/` | Create or update resume |
-| PUT | `/api/resume/personal` | Update personal info section |
-| PUT | `/api/resume/experience` | Update experience section |
-| PUT | `/api/resume/education` | Update education section |
-| PUT | `/api/resume/skills` | Update skills section |
-| PUT | `/api/resume/projects` | Update projects section |
+### Job Discovery
 
-### Calendar
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/calendar/connect` | Start Google OAuth flow |
-| GET | `/api/calendar/status` | Check if calendar is connected |
-| POST | `/api/calendar/sync/job/{id}` | Sync a job's dates to calendar |
-| DELETE | `/api/calendar/disconnect` | Disconnect Google Calendar |
+The job discovery feature helps users find new opportunities:
 
-### External Jobs
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/external/jobs/suggested-matches` | Get AI-suggested jobs |
+1. Remote job listings sourced from Remotive job board
+2. Personalized job suggestions based on saved application history
+3. Job saving functionality for future reference
 
----
+### AI-Powered Job Parsing
 
-## Running with Docker
+The AI parsing feature streamlines job entry:
+
+1. Paste any job description into the Add Job form
+2. Click Parse with AI to extract title, company, location, salary, and requirements
+3. Review extracted data and save to job list
+
+## API Reference
+
+The following tables document the available API endpoints.
+
+### Authentication Endpoints
+
+| Method | Endpoint                 | Description                   
+|--------|--------------------------|-----------------------------
+| POST   | /api/auth/signup         |Create a new user account
+| POST   | /api/auth/token          |Authenticate and receive access token
+| GET    | /api/auth/me             |Retrieve current user information
+| POST   | /api/auth/forgot-password| Request password reset email
+| POST   | /api/auth/reset-password | Reset password using token 
+
+### Job Management Endpoints
+
+| Method | Endpoint       | Description 
+|--------|----------------|-------------
+| GET    | /api/jobs/     | Retrieve all jobs for current user
+| POST   | /api/jobs/     | Create a new job entry
+| GET    | /api/jobs/{id} | Retrieve a specific job by ID
+| PUT    | /api/jobs/{id} | Update an existing job
+| DELETE | /api/jobs/{id} | Delete a job entry
+| POST   | /api/jobs/parse| Parse job description using AI
+
+### Resume Endpoints
+
+| Method | Endpoint               | Description 
+|--------|------------------------|------------------------------------
+| GET    | /api/resume/           | Retrieve user resume 
+| POST   | /api/resume/           |Create or update complete resume
+| PUT    | /api/resume/personal   | Update personal information section
+| PUT    | /api/resume/experience | Update work experience section
+| PUT    | /api/resume/education  | Update education section
+| PUT    | /api/resume/skills     | Update skills section
+| PUT    | /api/resume/projects   | Update projects section
+
+### Calendar Endpoints
+
+| Method | Endpoint                   |Description 
+|--------|----------------------------|-------------------------------
+| GET    | /api/calendar/connect      | Initiate Google OAuth flow
+| GET    | /api/calendar/status       | Check calendar connection status
+| POST   | /api/calendar/sync/job/{id}| Synchronize job dates to calendar
+| DELETE | /api/calendar/disconnect   | Disconnect Google Calendar
+
+### External Jobs Endpoints
+
+| Method | Endpoint                             | Description
+|--------|--------------------------------------|--------------------------|
+| GET    | /api/external/jobs/suggested-matches | Retrieve AI-suggested job matches
+
+## Docker Deployment
 
 If you prefer containers:
 
