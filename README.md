@@ -63,12 +63,13 @@ CSCI6180SD-D/
     backend/
         app/
             main.py                 FastAPI application entry point
-            models.py               Database models (User, Job, Resume)
+            models.py               Database models (User, Job, Resume, Note)
             database.py             Database connection configuration
             auth.py                 Authentication helper functions
             auth_routes.py          Authentication endpoints (login, signup, password reset)
             job_routes.py           Job application CRUD operations
             resume_routes.py        Resume builder API endpoints
+            notes_routes.py         Notes API endpoints
             calendar_routes.py      Google Calendar integration endpoints
             calendar_service.py     Calendar synchronization logic
             job_parser_routes.py    AI job description parser endpoint
@@ -101,6 +102,7 @@ CSCI6180SD-D/
                 jobService.js       Job API service
                 resumeService.js    Resume API service
                 calendarService.js  Calendar API service
+                notesService.js     Notes API service
         package.json                Node.js dependencies
         vite.config.js              Vite configuration
 
@@ -249,6 +251,15 @@ The AI parsing feature streamlines job entry:
 2. Click Parse with AI to extract title, company, location, salary, and requirements
 3. Review extracted data and save to job list
 
+### Notes
+
+The notes feature allows users to create and manage personal notes:
+
+1. Create notes with titles and content for tasks and reminders
+2. Edit and update existing notes
+3. Delete notes when no longer needed
+4. Notes are stored in the database and synced across devices
+
 ## API Reference
 
 The following tables document the available API endpoints.
@@ -295,10 +306,20 @@ The following tables document the available API endpoints.
 | POST   | /api/calendar/sync/job/{id}| Synchronize job dates to calendar
 | DELETE | /api/calendar/disconnect   | Disconnect Google Calendar
 
+### Notes Endpoints
+
+| Method | Endpoint         | Description
+|--------|------------------|----------------------------------
+| GET    | /api/notes/      | Retrieve all notes for current user
+| POST   | /api/notes/      | Create a new note
+| GET    | /api/notes/{id}  | Retrieve a specific note by ID
+| PUT    | /api/notes/{id}  | Update an existing note
+| DELETE | /api/notes/{id}  | Delete a note
+
 ### External Jobs Endpoints
 
 | Method | Endpoint                             | Description
-|--------|--------------------------------------|--------------------------|
+|--------|--------------------------------------|----------------------------------
 | GET    | /api/external/jobs/suggested-matches | Retrieve AI-suggested job matches
 
 ## Docker Deployment

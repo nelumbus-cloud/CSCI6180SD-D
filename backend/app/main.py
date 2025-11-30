@@ -11,6 +11,7 @@ from job_routes import router as job_router
 from calendar_routes import router as calendar_router
 from job_parser_routes import router as job_parser_router
 from resume_routes import router as resume_router
+from notes_routes import router as notes_router
 
 import os
 import logging
@@ -86,7 +87,7 @@ app.include_router(job_router)
 app.include_router(calendar_router)
 app.include_router(job_parser_router)
 app.include_router(resume_router)
-app.include_router(resume_router)
+app.include_router(notes_router)
 
 # app.include_router(mail_router)
 
