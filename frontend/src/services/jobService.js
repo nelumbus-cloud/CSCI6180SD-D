@@ -1,9 +1,10 @@
-const API_BASE_URL = 'http://localhost:8000/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE || 'http://localhost:8000';
+const JOBS_BASE_URL = `${API_BASE_URL}/api/jobs`;
 
 export const jobService = {
   async getJobs() {
     try {
-      const response = await fetch(`${API_BASE_URL}/jobs/`);
+      const response = await fetch(`${JOBS_BASE_URL}/`);
       if (!response.ok) {
         const errorText = await response.text();
         throw new Error(`Failed to fetch jobs: ${response.status} ${errorText}`);
@@ -17,7 +18,7 @@ export const jobService = {
 
   async createJob(jobData) {
     try {
-      const response = await fetch(`${API_BASE_URL}/jobs/`, {
+      const response = await fetch(`${JOBS_BASE_URL}/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -38,7 +39,7 @@ export const jobService = {
 
   async updateJob(jobId, jobData) {
     try {
-      const response = await fetch(`${API_BASE_URL}/jobs/${jobId}`, {
+      const response = await fetch(`${JOBS_BASE_URL}/${jobId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -57,7 +58,7 @@ export const jobService = {
 
   async deleteJob(jobId) {
     try {
-      const response = await fetch(`${API_BASE_URL}/jobs/${jobId}`, {
+      const response = await fetch(`${JOBS_BASE_URL}/${jobId}`, {
         method: 'DELETE',
       });
       if (!response.ok) {
@@ -72,7 +73,7 @@ export const jobService = {
 
   async parseJobDescription(text) {
     try {
-      const response = await fetch(`${API_BASE_URL}/jobs/parse`, {
+      const response = await fetch(`${JOBS_BASE_URL}/parse`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

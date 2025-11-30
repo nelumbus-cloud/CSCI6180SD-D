@@ -1,4 +1,5 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE || 'http://localhost:8000/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE || 'http://localhost:8000';
+const RESUME_BASE_URL = `${API_BASE_URL}/api/resume`;
 
 /**
  * Resume Service - Handles all resume-related API calls
@@ -10,7 +11,7 @@ export const resumeService = {
    */
   async getResume() {
     try {
-      const response = await fetch(`${API_BASE_URL}/resume/`, {
+      const response = await fetch(`${RESUME_BASE_URL}/`, {
         method: 'GET',
         credentials: 'include', // Important: include cookies for authentication
       });
@@ -56,7 +57,7 @@ export const resumeService = {
    */
   async saveResume(resumeData) {
     try {
-      const response = await fetch(`${API_BASE_URL}/resume/`, {
+      const response = await fetch(`${RESUME_BASE_URL}/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -87,7 +88,7 @@ export const resumeService = {
    */
   async updatePersonalInfo(personalInfo) {
     try {
-      const response = await fetch(`${API_BASE_URL}/resume/personal`, {
+      const response = await fetch(`${RESUME_BASE_URL}/personal`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -118,7 +119,7 @@ export const resumeService = {
    */
   async updateExperience(experience) {
     try {
-      const response = await fetch(`${API_BASE_URL}/resume/experience`, {
+      const response = await fetch(`${RESUME_BASE_URL}/experience`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -149,7 +150,7 @@ export const resumeService = {
    */
   async updateEducation(education) {
     try {
-      const response = await fetch(`${API_BASE_URL}/resume/education`, {
+      const response = await fetch(`${RESUME_BASE_URL}/education`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -180,7 +181,7 @@ export const resumeService = {
    */
   async updateSkills(skills) {
     try {
-      const response = await fetch(`${API_BASE_URL}/resume/skills`, {
+      const response = await fetch(`${RESUME_BASE_URL}/skills`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -211,7 +212,7 @@ export const resumeService = {
    */
   async updateProjects(projects) {
     try {
-      const response = await fetch(`${API_BASE_URL}/resume/projects`, {
+      const response = await fetch(`${RESUME_BASE_URL}/projects`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -241,7 +242,7 @@ export const resumeService = {
    */
   async deleteResume() {
     try {
-      const response = await fetch(`${API_BASE_URL}/resume/`, {
+      const response = await fetch(`${RESUME_BASE_URL}/`, {
         method: 'DELETE',
         credentials: 'include',
       });
@@ -260,5 +261,79 @@ export const resumeService = {
       throw error;
     }
   },
+
+  /**
+   * Download PDF generated from saved resume on server
+   */
+  async downloadSavedPdf() {
+    try {
+      const response = await fetch(`${RESUME_BASE_URL}/download`, {
+        method: 'GET',
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to download PDF: ${response.status} ${errorText}`);
+      }
+
+      const blob = await response.blob();
+      // Try to get filename from header
+      const cd = response.headers.get('Content-Disposition') || '';
+      let filename = 'resume.pdf';
+      const match = /filename="?([^";]+)"?/.exec(cd);
+      if (match && match[1]) filename = match[1];
+
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading saved PDF:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Download PDF generated from provided resume data (no save)
+   * @param {Object} resumeData
+   */
+  async downloadPdfFromData(resumeData) {
+    try {
+      const response = await fetch(`${RESUME_BASE_URL}/download`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(resumeData),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to download PDF: ${response.status} ${errorText}`);
+      }
+
+      const blob = await response.blob();
+      const cd = response.headers.get('Content-Disposition') || '';
+      let filename = 'resume.pdf';
+      const match = /filename="?([^";]+)"?/.exec(cd);
+      if (match && match[1]) filename = match[1];
+
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading PDF from data:', error);
+      throw error;
+    }
+  }
 };
 

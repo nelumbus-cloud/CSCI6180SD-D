@@ -46,6 +46,7 @@ export default function DashboardLayout({ children, activeTab, onTabChange }) {
                                     <TabsTrigger value="my-jobs" className="data-[state=active]:bg-indigo-100 data-[state=active]:text-indigo-700 text-sm px-3 py-1 h-7">My Jobs</TabsTrigger>
                                     <TabsTrigger value="resume-studio" className="data-[state=active]:bg-indigo-100 data-[state=active]:text-indigo-700 text-sm px-3 py-1 h-7">Resume Studio</TabsTrigger>
                                     <TabsTrigger value="feed" className="data-[state=active]:bg-indigo-100 data-[state=active]:text-indigo-700 text-sm px-3 py-1 h-7">Feed</TabsTrigger>
+                                    <TabsTrigger value="settings" className="data-[state=active]:bg-indigo-100 data-[state=active]:text-indigo-700 text-sm px-3 py-1 h-7">Settings</TabsTrigger>
                                 </TabsList>
                             </div>
 
@@ -56,9 +57,15 @@ export default function DashboardLayout({ children, activeTab, onTabChange }) {
                                         {user.username}
                                     </span>
                                 )}
-                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0 hover:bg-slate-100" title={user?.email || 'Profile'}>
+                                <Button 
+                                    variant="ghost" 
+                                    size="sm" 
+                                    className="h-8 w-8 p-0 hover:bg-slate-100" 
+                                    title="Settings"
+                                    onClick={() => onTabChange('settings')}
+                                >
                                     <User className="h-4 w-4 text-slate-600" />
-                                    <span className="sr-only">Profile</span>
+                                    <span className="sr-only">Settings</span>
                                 </Button>
                                 <Button 
                                     variant="outline" 

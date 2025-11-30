@@ -19,14 +19,19 @@ import smtplib
 from email.mime.text import MIMEText
 from jose import JWTError, jwt
 from dotenv import load_dotenv
+from pathlib import Path
 
-# Load both .env and .env.local
-load_dotenv("../.env")
-load_dotenv("../.env.local", override=True) 
+# Load environment variables from the backend directory
+backend_dir = Path(__file__).parent.parent
+env_path = backend_dir / ".env"
+env_local_path = backend_dir / ".env.local"
 
-APP_ENV = os.getenv("APP_ENV")
-SECRET_KEY = os.getenv("AUTH_SECRET_KEY")
-ALGORITHM = os.getenv("AUTH_ALGORITHM")
+load_dotenv(env_path)
+load_dotenv(env_local_path, override=True)
+
+APP_ENV = os.getenv("APP_ENV", "development")
+SECRET_KEY = os.getenv("AUTH_SECRET_KEY", "your-default-secret")
+ALGORITHM = os.getenv("AUTH_ALGORITHM", "HS256")
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
@@ -177,13 +182,12 @@ async def login(
     )
     response = JSONResponse(content={"message": "Login successful"})
     
-    # just test
     cookie_args = {
         "key": "token",
         "value": access_token,
         "httponly": True,
-        "secure": True,
-        "samesite": "none",
+        "secure": False if APP_ENV == "development" else True,
+        "samesite": "lax" if APP_ENV == "development" else "none",
         "max_age": ACCESS_TOKEN_EXPIRE_MINUTES * 60,
         "path": "/"
     }
@@ -290,41 +294,34 @@ async def logout(request: Request, response: Response):
     # Clear all session data (including OAuth state)
     request.session.clear()
     
-    # Delete the token cookie
-    token_cookie_args = {
-        "key": "token",
-        "path": "/",
-        "httponly": True,
-        "secure": False if APP_ENV == "development" else True,  # Adjust for local testing
-        "samesite": "none",
-    }
-    if APP_ENV == "production":
-        token_cookie_args["domain"] = ".homeinsight.cloud"
-    response.delete_cookie(**token_cookie_args)
-    
-    # Delete the session cookie
-    app_session_cookie_args = {
-        "key": "app_session",  # Default name used by SessionMiddleware
-        "path": "/",
-        "httponly": True,
-        "secure": False if APP_ENV == "development" else True,
-        "samesite": "lax",
-    }
-    if APP_ENV == "production":
-        app_session_cookie_args["domain"] = ".homeinsight.cloud"
-    response.delete_cookie(**app_session_cookie_args)
-    
-    # Delete external session for site-builder.homeinsight.cloud
-    external_session_cookie_args = {
-        "key": "session",
-        "path": "/",
-        "httponly": True,
-        "secure": False,
-        "samesite": "lax",
-        "domain": "site-builder.homeinsight.cloud" if APP_ENV == "production" else None
-    }
-    response.delete_cookie(**external_session_cookie_args)
-    
+    # Explicitly overwrite the cookie with an expired one to ensure browsers remove it
+    secure_flag = False if APP_ENV == "development" else True
+    samesite_val = "lax" if APP_ENV == "development" else "none"
+
+    # Clear token cookie
+    response.set_cookie(
+        key="token",
+        value="",
+        httponly=True,
+        secure=secure_flag,
+        samesite=samesite_val,
+        max_age=0,
+        expires=0,
+        path="/",
+    )
+
+    # Clear session cookie used by SessionMiddleware
+    response.set_cookie(
+        key="app_session",
+        value="",
+        httponly=True,
+        secure=secure_flag,
+        samesite="lax",
+        max_age=0,
+        expires=0,
+        path="/",
+    )
+
     return {"message": "Logged out successfully"}
 
     

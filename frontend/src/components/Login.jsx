@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function Login({ onSwitchToSignup }) {
   const { login, loading, error: authError } = useAuth();
@@ -10,6 +10,7 @@ export default function Login({ onSwitchToSignup }) {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -26,7 +27,6 @@ export default function Login({ onSwitchToSignup }) {
       if (!result.success) {
         setError(result.error || "Login failed. Please try again.");
       }
-      // If successful, the AuthContext will update and App.jsx will redirect
     } catch (err) {
       setError(err.message || "An unexpected error occurred");
     } finally {
@@ -38,76 +38,121 @@ export default function Login({ onSwitchToSignup }) {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 p-4">
-      <Card className="w-full max-w-md p-8 shadow-xl">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-slate-900 mb-2">Welcome Back</h1>
-          <p className="text-slate-600">Sign in to your account to continue</p>
-        </div>
+      {/* Subtle background gradient */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-200/30 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-indigo-200/20 rounded-full blur-3xl"></div>
+      </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {displayError && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
-              {displayError}
+      {/* Main Card */}
+      <div className="relative z-10 w-full max-w-md">
+        <div className="bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden">
+          {/* Header */}
+          <div className="px-8 py-10 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-slate-100">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-10 h-10 bg-gradient-to-br from-indigo-600 to-indigo-700 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-lg">C</span>
+              </div>
+              <span className="text-xl font-semibold text-slate-900">CareerHub</span>
             </div>
-          )}
-
-          <div className="space-y-2">
-            <label htmlFor="username" className="block text-sm font-medium text-slate-700">
-              Username
-            </label>
-            <Input
-              id="username"
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="Enter your username"
-              required
-              disabled={isSubmitting || loading}
-              className="w-full"
-            />
+            <p className="text-slate-600 text-sm mt-3">Sign in to your account to continue</p>
           </div>
 
-          <div className="space-y-2">
-            <label htmlFor="password" className="block text-sm font-medium text-slate-700">
-              Password
-            </label>
-            <Input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your password"
-              required
-              disabled={isSubmitting || loading}
-              className="w-full"
-            />
-          </div>
+          {/* Form Container */}
+          <div className="px-8 py-8">
+            <form onSubmit={handleSubmit} className="space-y-5">
+              {/* Error Alert */}
+              {displayError && (
+                <div className="bg-red-50 border border-red-200 px-4 py-3 rounded-lg text-sm text-red-700">
+                  <div className="flex items-start">
+                    <span className="mr-2 flex-shrink-0">✕</span>
+                    <span>{displayError}</span>
+                  </div>
+                </div>
+              )}
 
-          <Button
-            type="submit"
-            disabled={isSubmitting || loading}
-            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white"
-          >
-            {isSubmitting || loading ? "Signing in..." : "Sign In"}
-          </Button>
-        </form>
+              {/* Username Field */}
+              <div>
+                <label htmlFor="username" className="block text-sm font-semibold text-slate-700 mb-2">
+                  Username
+                </label>
+                <Input
+                  id="username"
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="Enter your username"
+                  required
+                  disabled={isSubmitting || loading}
+                  className="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-transparent transition-all"
+                />
+              </div>
 
-        {onSwitchToSignup && (
-          <div className="mt-6 text-center">
-            <p className="text-sm text-slate-600">
-              Don't have an account?{" "}
-              <button
-                type="button"
-                onClick={onSwitchToSignup}
-                className="text-indigo-600 hover:text-indigo-700 font-medium"
+              {/* Password Field */}
+              <div>
+                <label htmlFor="password" className="block text-sm font-semibold text-slate-700 mb-2">
+                  Password
+                </label>
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Enter your password"
+                    required
+                    disabled={isSubmitting || loading}
+                    className="w-full px-4 py-2.5 pr-12 bg-slate-50 border border-slate-300 rounded-lg text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-transparent transition-all"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-600 hover:text-slate-800 transition-colors"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="w-5 h-5" />
+                    ) : (
+                      <Eye className="w-5 h-5" />
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {/* Submit Button */}
+              <Button
+                type="submit"
                 disabled={isSubmitting || loading}
+                className="w-full bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white font-semibold py-2.5 rounded-lg transition-all mt-6 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Sign up
-              </button>
-            </p>
+                {isSubmitting || loading ? "Signing in..." : "Sign In"}
+              </Button>
+            </form>
+
+            {/* Divider */}
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-slate-300"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white text-slate-600">New to CareerHub?</span>
+              </div>
+            </div>
+
+            {/* Sign Up Link */}
+            <button
+              onClick={onSwitchToSignup}
+              className="w-full px-4 py-2.5 border border-slate-300 text-slate-700 font-semibold rounded-lg hover:bg-slate-50 transition-colors"
+            >
+              Create an Account
+            </button>
           </div>
-        )}
-      </Card>
+
+          {/* Footer */}
+          <div className="px-8 py-4 bg-slate-100 border-t border-slate-200 text-center text-xs text-slate-600">
+            By signing in, you agree to our Terms of Service and Privacy Policy
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

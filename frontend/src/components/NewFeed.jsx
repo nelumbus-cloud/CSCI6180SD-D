@@ -67,20 +67,19 @@ function JobItem({ job, onToggleSave, isSaved }) {
                 )}
             </div>
 
-            {job.publication_date && (
-                <div className="flex items-center justify-between pt-3 border-t border-slate-200">
-                    <div className="flex items-center gap-1.5 text-xs text-slate-500">
-                        <Clock className="w-3.5 h-3.5" />
-                        <span>Posted {formatDate(job.publication_date)}</span>
-                    </div>
-                    <Button
-                        size="sm"
-                        className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs h-7 px-3"
-                    >
-                        View Details
-                    </Button>
+            <div className="flex items-center justify-between pt-3 border-t border-slate-200">
+                <div className="flex items-center gap-1.5 text-xs text-slate-500">
+                    <Clock className="w-3.5 h-3.5" />
+                    <span>{job.publication_date ? `Posted ${formatDate(job.publication_date)}` : 'Remote Job'}</span>
                 </div>
-            )}
+                <Button
+                    size="sm"
+                    className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs h-7 px-3"
+                    onClick={() => window.open(job.url || 'https://remotive.com/remote-jobs', '_blank')}
+                >
+                    View More
+                </Button>
+            </div>
         </div>
     );
 }
@@ -94,6 +93,9 @@ export default function NewFeed() {
     const [location, setLocation] = useState("");
     const [company, setCompany] = useState("");
     const [savedJobs, setSavedJobs] = useState(new Set());
+    const [debouncedSearch, setDebouncedSearch] = useState("");
+    const [debouncedLocation, setDebouncedLocation] = useState("");
+    const [debouncedCompany, setDebouncedCompany] = useState("");
 
     // Load saved jobs from localStorage
     useEffect(() => {
@@ -107,6 +109,28 @@ export default function NewFeed() {
             }
         }
     }, []);
+
+    // Debounce filter inputs
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedSearch(search);
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [search]);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedLocation(location);
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [location]);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedCompany(company);
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [company]);
 
     // Save to localStorage whenever savedJobs changes
     useEffect(() => {
@@ -145,18 +169,18 @@ export default function NewFeed() {
 
     const queryString = useMemo(() => {
         const params = new URLSearchParams();
-        if (search) params.set("search", search);
-        if (location) params.set("location", location);
-        if (company) params.set("company_name", company);
+        if (debouncedSearch) params.set("search", debouncedSearch);
+        if (debouncedLocation) params.set("location", debouncedLocation);
+        if (debouncedCompany) params.set("company_name", debouncedCompany);
         params.set("limit", String(pageSize));
         return params.toString();
-    }, [search, location, company]);
+    }, [debouncedSearch, debouncedLocation, debouncedCompany]);
 
     async function fetchPage(nextPage) {
         setIsLoading(true);
         try {
             const limit = pageSize * nextPage;
-            const url = `${BACKEND_BASE}/external/jobs/?${queryString.replace(/limit=\d+/, `limit=${limit}`)}`;
+            const url = `${BACKEND_BASE}/api/external/jobs/?${queryString.replace(/limit=\d+/, `limit=${limit}`)}`;
             const resp = await fetch(url);
             if (!resp.ok) throw new Error(`Failed to load: ${resp.status}`);
             const data = await resp.json();
@@ -195,9 +219,13 @@ export default function NewFeed() {
     }
 
     useEffect(() => {
-        resetAndRefetch();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [queryString]);
+        // Reset items and refetch when debounced filters change
+        setItems([]);
+        setPage(0);
+        setHasMore(true);
+        // Small delay to ensure state updates
+        setTimeout(() => fetchPage(1), 0);
+    }, [debouncedSearch, debouncedLocation, debouncedCompany]);
 
     useEffect(() => {
         if (!sentinelRef.current) return;
@@ -212,7 +240,7 @@ export default function NewFeed() {
         return () => observerRef.current && observerRef.current.disconnect();
     }, [page, isLoading, hasMore]);
 
-    const hasActiveFilters = search || location || company;
+    const hasActiveFilters = debouncedSearch || debouncedLocation || debouncedCompany;
 
     return (
         <div className="flex flex-col gap-6">
@@ -269,19 +297,19 @@ export default function NewFeed() {
                 {hasActiveFilters && (
                     <div className="mt-3 flex items-center gap-2 text-xs text-slate-600">
                         <span>Active filters:</span>
-                        {search && (
+                        {debouncedSearch && (
                             <span className="px-2 py-1 bg-indigo-100 text-indigo-700 rounded-md font-medium">
-                                {search}
+                                {debouncedSearch}
                             </span>
                         )}
-                        {location && (
+                        {debouncedLocation && (
                             <span className="px-2 py-1 bg-indigo-100 text-indigo-700 rounded-md font-medium">
-                                {location}
+                                {debouncedLocation}
                             </span>
                         )}
-                        {company && (
+                        {debouncedCompany && (
                             <span className="px-2 py-1 bg-indigo-100 text-indigo-700 rounded-md font-medium">
-                                {company}
+                                {debouncedCompany}
                             </span>
                         )}
                     </div>

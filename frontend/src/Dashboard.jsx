@@ -10,6 +10,7 @@ import { DeleteJobModal } from '@/components/DeleteJobModal';
 import { JobStatsModal } from '@/components/JobStatsModal';
 import { NotesModal } from '@/components/NotesModal';
 import { DashboardSidebar } from '@/components/DashboardSidebar';
+import Settings from '@/components/Settings';
 import NewFeed from '@/components/NewFeed';
 import { StickyNote } from 'lucide-react';
 //
@@ -43,7 +44,11 @@ export default function Dashboard() {
     work_location: "",
     company: "",
     description: "",
-    requirementsText: ""
+    requirementsText: "",
+    interview_date: "",
+    application_deadline: "",
+    follow_up_date: "",
+    offer_deadline: ""
   });
 
   useEffect(() => {
@@ -115,6 +120,14 @@ export default function Dashboard() {
         .map(s => s.trim())
         .filter(Boolean);
 
+      // Convert datetime-local strings to ISO format
+      const formatDateTime = (dateTimeString) => {
+        if (!dateTimeString) return null;
+        // datetime-local format: YYYY-MM-DDTHH:MM
+        // Add :00 for seconds and Z for UTC timezone
+        return dateTimeString + ':00Z';
+      };
+
       const jobToAdd = {
         title: newJob.title,
         location: newJob.location,
@@ -124,7 +137,11 @@ export default function Dashboard() {
         work_location: newJob.work_location,
         company: newJob.company,
         description: newJob.description,
-        requirements
+        requirements,
+        interview_date: formatDateTime(newJob.interview_date),
+        application_deadline: formatDateTime(newJob.application_deadline),
+        follow_up_date: formatDateTime(newJob.follow_up_date),
+        offer_deadline: formatDateTime(newJob.offer_deadline)
       };
 
       if (editingJobId) {
@@ -132,10 +149,14 @@ export default function Dashboard() {
         setJobs(prev => prev.map(job => job.id === editingJobId ? updatedJob : job));
         setSuccessMessage('Job updated successfully!');
         setEditingJobId(null);
+        // Notify sidebar to refresh
+        window.dispatchEvent(new Event('jobUpdated'));
       } else {
         const savedJob = await jobService.createJob(jobToAdd);
         setJobs(prev => [...prev, savedJob]);
         setSuccessMessage('Job added successfully!');
+        // Notify sidebar to refresh
+        window.dispatchEvent(new Event('jobUpdated'));
       }
 
       setShowAddModal(false);
@@ -156,7 +177,11 @@ export default function Dashboard() {
       work_location: "",
       company: "",
       description: "",
-      requirementsText: ""
+      requirementsText: "",
+      interview_date: "",
+      application_deadline: "",
+      follow_up_date: "",
+      offer_deadline: ""
     });
   }
 
@@ -168,6 +193,18 @@ export default function Dashboard() {
         ? jobToEdit.requirements.join(', ')
         : '';
 
+      // Convert ISO date strings to datetime-local format (YYYY-MM-DDTHH:mm)
+      const formatDateForInput = (dateString) => {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
+      };
+
       setNewJob({
         title: jobToEdit.title,
         location: jobToEdit.location || '',
@@ -177,7 +214,11 @@ export default function Dashboard() {
         work_location: jobToEdit.work_location || '',
         company: jobToEdit.company || '',
         description: jobToEdit.description || '',
-        requirementsText: requirements
+        requirementsText: requirements,
+        interview_date: formatDateForInput(jobToEdit.interview_date) || '',
+        application_deadline: formatDateForInput(jobToEdit.application_deadline) || '',
+        follow_up_date: formatDateForInput(jobToEdit.follow_up_date) || '',
+        offer_deadline: formatDateForInput(jobToEdit.offer_deadline) || ''
       });
       setEditingJobId(jobId);
       setShowAddModal(true);
@@ -206,6 +247,8 @@ export default function Dashboard() {
       setShowDeleteModal(false);
       setDeleteTargetId(null);
       setDeleteTargetTitle('');
+      // Notify sidebar to refresh
+      window.dispatchEvent(new Event('jobUpdated'));
     } catch (error) {
       console.error('Error deleting job:', error);
       setError('Failed to delete job: ' + (error.message || 'Unknown error'));
@@ -283,6 +326,10 @@ export default function Dashboard() {
               <h2 className="text-2xl font-semibold text-slate-900 mb-6">Feed</h2>
               <NewFeed />
             </div>
+          </TabsContent>
+
+          <TabsContent value="settings">
+            <Settings />
           </TabsContent>
         </div>
 

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Body
 from sqlalchemy.orm import Session
 from database import get_db
 from models import Resume, User
@@ -81,6 +81,7 @@ def resume_to_dict(resume: Resume) -> Dict[str, Any]:
         "updated_at": resume.updated_at.isoformat() if resume.updated_at else "",
     }
 
+
 @router.get("/", response_model=ResumeResponse)
 async def get_resume(
     current_user: User = Depends(get_current_user),
@@ -103,6 +104,7 @@ async def get_resume(
         )
     
     return resume_to_dict(resume)
+
 
 @router.post("/", response_model=ResumeResponse)
 async def create_or_update_resume(

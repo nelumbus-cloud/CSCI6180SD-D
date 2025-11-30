@@ -19,6 +19,9 @@ from dotenv import load_dotenv
 load_dotenv("../.env")
 load_dotenv("../.env.local", override=True)
 
+# Default user ID for shared jobs
+DEFAULT_USER_ID = "default-user-id"
+
 router = APIRouter(prefix="/api/calendar", tags=["calendar"])
 
 GOOGLE_REDIRECT_URI = os.getenv("GOOGLE_REDIRECT_URI", "http://localhost:8000/api/calendar/oauth2callback")
@@ -26,36 +29,21 @@ GOOGLE_REDIRECT_URI = os.getenv("GOOGLE_REDIRECT_URI", "http://localhost:8000/ap
 @router.get("/connect")
 async def connect_calendar(
     user_id: Optional[str] = Query(None),  #for testing without auth
-    request: Request = None,
     db: Session = Depends(get_db),
-    redirect: bool = Query(True)  #whether to redirect directly to google
+    redirect: bool = Query(True),  #whether to redirect directly to google
+    current_user: User = Depends(get_current_user)  #require authentication
 ):
     """initiate google calendar oauth connection
     
-    for testing: pass ?user_id=your-user-id to bypass auth
-    for production: requires authentication via cookie (log in first)
+    requires authentication via login (cookie)
     """
-    user = None
-    
-    #try to get from cookie first (normal auth)
-    if not user_id:
-        try:
-            from .auth import get_token
-            token = get_token(request)
-            user = await get_current_user(token, db)
-        except:
-            pass
-    
-    #fallback to user_id param for testing
-    if not user and user_id:
-        user = db.query(User).filter(User.id == user_id).first()
-        if not user:
-            raise HTTPException(status_code=404, detail=f"user with id {user_id} not found")
+    #get authenticated user
+    user = current_user
     
     if not user:
         raise HTTPException(
             status_code=401, 
-            detail="authentication required. either: 1) log in first via /token, or 2) pass ?user_id=your-user-id for testing"
+            detail="authentication required. please log in first"
         )
     
     authorization_url, state = get_authorization_url(user.id)
@@ -125,27 +113,28 @@ async def sync_job_to_calendar(
     job_id: str,
     user_id: Optional[str] = Query(None),  #for testing without auth
     request: Request = None,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
     """sync a specific job's important dates to google calendar"""
-    #get user (with test mode support)
-    user = None
-    if not user_id:
-        try:
-            from .auth import get_token
-            token = get_token(request)
-            user = await get_current_user(token, db)
-        except:
-            pass
+    #get user from current_user (authenticated)
+    user = current_user
     
+    #if no authenticated user but user_id provided for testing
     if not user and user_id:
         user = db.query(User).filter(User.id == user_id).first()
     
     if not user:
         raise HTTPException(status_code=401, detail="authentication required or provide user_id for testing")
     
+    #check if user has connected google calendar
+    if not user.google_calendar_token:
+        raise HTTPException(
+            status_code=401, 
+            detail="Google Calendar not connected. Please connect your Google Calendar first."
+        )
+    
     #find job - check both user's jobs and default user jobs (for backward compatibility)
-    from .job_routes import DEFAULT_USER_ID
     job = db.query(Job).filter(
         Job.id == job_id,
         (Job.user_id == user.id) | (Job.user_id == DEFAULT_USER_ID)
@@ -155,33 +144,41 @@ async def sync_job_to_calendar(
         raise HTTPException(status_code=404, detail="job not found")
     
     result = sync_job_dates_to_calendar(user, db, job)
+    
+    #check if any events were created
+    if not result.get("events_created") or len(result.get("events_created", [])) == 0:
+        raise HTTPException(
+            status_code=400, 
+            detail="No events were created. Ensure the job has at least one date set (interview, deadline, or follow-up date)."
+        )
+    
     return result
 
 @router.post("/sync/all")
 async def sync_all_jobs_to_calendar(
     user_id: Optional[str] = Query(None),  #for testing without auth
-    request: Request = None,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
     """sync all jobs' important dates to google calendar"""
-    #get user (with test mode support)
-    user = None
-    if not user_id:
-        try:
-            from .auth import get_token
-            token = get_token(request)
-            user = await get_current_user(token, db)
-        except:
-            pass
+    #get user from current_user (authenticated)
+    user = current_user
     
+    #if no authenticated user but user_id provided for testing
     if not user and user_id:
         user = db.query(User).filter(User.id == user_id).first()
     
     if not user:
         raise HTTPException(status_code=401, detail="authentication required or provide user_id for testing")
     
+    #check if user has connected google calendar
+    if not user.google_calendar_token:
+        raise HTTPException(
+            status_code=401, 
+            detail="Google Calendar not connected. Please connect your Google Calendar first."
+        )
+    
     #get jobs - include both user's jobs and default user jobs (for backward compatibility)
-    from .job_routes import DEFAULT_USER_ID
     jobs = db.query(Job).filter(
         (Job.user_id == user.id) | (Job.user_id == DEFAULT_USER_ID)
     ).all()

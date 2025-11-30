@@ -1,5 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
+from sqlalchemy import and_
 from database import get_db
 from models import Job, User
 from pydantic import BaseModel
@@ -275,3 +276,61 @@ def delete_job(job_id: str, db: Session = Depends(get_db)):
     db.commit()
     
     return {"message": "job deleted successfully"}
+
+# Get upcoming interviews (multiple)
+@router.get("/dashboard/upcoming-interviews", response_model=List[JobResponse])
+def get_upcoming_interviews(limit: int = Query(10, ge=1, le=20), db: Session = Depends(get_db)):
+    """Get all upcoming interviews (jobs with interview_date in the future), sorted by date"""
+    current_time = datetime.utcnow()
+    
+    upcoming_jobs = db.query(Job).filter(
+        and_(
+            Job.user_id == DEFAULT_USER_ID,
+            Job.interview_date.isnot(None),
+            Job.interview_date > current_time
+        )
+    ).order_by(Job.interview_date).limit(limit).all()
+    
+    return [JobResponse.from_orm(job) for job in upcoming_jobs]
+
+# Keep old endpoint for backward compatibility
+@router.get("/dashboard/upcoming-interview", response_model=Optional[JobResponse])
+def get_upcoming_interview(db: Session = Depends(get_db)):
+    """Get the next upcoming interview (job with the earliest interview_date in the future)"""
+    current_time = datetime.utcnow()
+    
+    upcoming_job = db.query(Job).filter(
+        and_(
+            Job.user_id == DEFAULT_USER_ID,
+            Job.interview_date.isnot(None),
+            Job.interview_date > current_time
+        )
+    ).order_by(Job.interview_date).first()
+    
+    if not upcoming_job:
+        return None
+    
+    return JobResponse.from_orm(upcoming_job)
+
+# Get suggested job match
+@router.get("/dashboard/suggested-match", response_model=Optional[JobResponse])
+def get_suggested_job_match(db: Session = Depends(get_db)):
+    """Get a suggested job match (e.g., a job in 'In Progress' status, or the most recent one)"""
+    # Strategy: Find a job in "In Progress" status that might be a good match
+    suggested_job = db.query(Job).filter(
+        and_(
+            Job.user_id == DEFAULT_USER_ID,
+            Job.status.in_(["In Progress", "Applied"])
+        )
+    ).order_by(Job.created_at.desc()).first()
+    
+    if not suggested_job:
+        # Fallback: return the most recent job
+        suggested_job = db.query(Job).filter(
+            Job.user_id == DEFAULT_USER_ID
+        ).order_by(Job.created_at.desc()).first()
+    
+    if not suggested_job:
+        return None
+    
+    return JobResponse.from_orm(suggested_job)

@@ -72,6 +72,37 @@ export const AuthProvider = ({ children }) => {
   };
 
   /**
+   * Logout user - clears both server-side cookies and client-side state
+   */
+  const logout = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Call logout endpoint to clear server-side cookies
+      await authService.logout();
+
+      // Immediately clear client-side user state
+      setUser(null);
+
+      // Verify the logout was successful by checking auth status
+      // This ensures the cookie was actually deleted
+      await checkAuth();
+
+      return { success: true };
+    } catch (err) {
+      const errorMessage = err.message || "Logout failed";
+      setError(errorMessage);
+      // Even if logout fails, clear client-side state
+      setUser(null);
+      // Still try to verify auth status
+      await checkAuth();
+      return { success: false, error: errorMessage };
+    } finally {
+      setLoading(false);
+    }
+  };
+  /**
    * Signup new user
    * @param {string} username
    * @param {string} password
@@ -100,27 +131,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  /**
-   * Logout user
-   */
-  const logout = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      await authService.logout();
-      setUser(null);
-      return { success: true };
-    } catch (err) {
-      const errorMessage = err.message || "Logout failed";
-      setError(errorMessage);
-      // Even if logout fails, clear user state
-      setUser(null);
-      return { success: false, error: errorMessage };
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  
   /**
    * Refresh authentication token
    */

@@ -81,11 +81,11 @@ export function JobFormModal({
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
             <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={handleClose} />
-            <div className="relative z-10 w-full max-w-2xl">
-                <Card className="shadow-2xl">
-                    <CardHeader className="bg-slate-50 border-b border-slate-200">
+            <div className="relative z-10 w-full max-w-2xl my-8">
+                <Card className="shadow-2xl flex flex-col max-h-[85vh]">
+                    <CardHeader className="sticky top-0 bg-slate-50 border-b border-slate-200 z-10 flex-shrink-0">
                         <CardTitle className="flex items-center gap-3 text-lg font-semibold text-slate-900">
                             {isEditing ? (
                                 <>
@@ -100,7 +100,7 @@ export function JobFormModal({
                             )}
                         </CardTitle>
                     </CardHeader>
-                    <CardContent className="p-6">
+                    <CardContent className="p-6 overflow-y-auto flex-1">
                         {!isEditing && (
                             <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
                                 <TabsList className="grid w-full grid-cols-2">
@@ -231,6 +231,33 @@ export function JobFormModal({
                                     />
                                 </div>
                                 <div>
+                                    <label className="block text-sm font-medium text-slate-700 mb-2">Interview Date</label>
+                                    <Input
+                                        type="datetime-local"
+                                        value={jobData.interview_date || ''}
+                                        onChange={e => onChange({ ...jobData, interview_date: e.target.value })}
+                                        className="border-slate-200"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 mb-2">Application Deadline</label>
+                                    <Input
+                                        type="datetime-local"
+                                        value={jobData.application_deadline || ''}
+                                        onChange={e => onChange({ ...jobData, application_deadline: e.target.value })}
+                                        className="border-slate-200"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 mb-2">Follow-up Date</label>
+                                    <Input
+                                        type="datetime-local"
+                                        value={jobData.follow_up_date || ''}
+                                        onChange={e => onChange({ ...jobData, follow_up_date: e.target.value })}
+                                        className="border-slate-200"
+                                    />
+                                </div>
+                                <div>
                                     <label className="block text-sm font-medium text-slate-700 mb-2">Description</label>
                                     <Input
                                         placeholder="Brief description of the role"
@@ -250,13 +277,13 @@ export function JobFormModal({
                                     <p className="text-xs text-slate-500 mt-1">Example: Python, React, 5+ years experience</p>
                                 </div>
                             </div>
-                            <div className="flex justify-end gap-3 pt-4 border-t border-slate-200">
-                                <Button type="button" variant="outline" onClick={handleClose} className="border-slate-300">
+                            <div className="flex justify-end gap-3 pt-6 border-t border-slate-200 mt-6">
+                                <Button type="button" variant="outline" onClick={handleClose} className="border-slate-300 px-6 py-2">
                                     Cancel
                                 </Button>
                                 <Button
                                     type="submit"
-                                    className="bg-indigo-600 hover:bg-indigo-700 text-white"
+                                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2"
                                 >
                                     {isEditing ? 'Update Job' : 'Add Job'}
                                 </Button>
