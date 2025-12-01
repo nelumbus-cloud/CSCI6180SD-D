@@ -101,7 +101,7 @@ export default function Signup({ onSwitchToLogin }) {
               <div className="w-10 h-10 bg-gradient-to-br from-indigo-600 to-indigo-700 rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-lg">C</span>
               </div>
-              <span className="text-xl font-semibold text-slate-900">CareerHub</span>
+              <span className="text-xl font-semibold text-slate-900">MyCareer</span>
             </div>
             <p className="text-slate-600 text-sm mt-3">Create an account to get started</p>
           </div>

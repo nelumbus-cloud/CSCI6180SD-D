@@ -53,7 +53,7 @@ export default function Login({ onSwitchToSignup }) {
               <div className="w-10 h-10 bg-gradient-to-br from-indigo-600 to-indigo-700 rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-lg">C</span>
               </div>
-              <span className="text-xl font-semibold text-slate-900">CareerHub</span>
+              <span className="text-xl font-semibold text-slate-900">MyCareer</span>
             </div>
             <p className="text-slate-600 text-sm mt-3">Sign in to your account to continue</p>
           </div>
@@ -134,7 +134,7 @@ export default function Login({ onSwitchToSignup }) {
                 <div className="w-full border-t border-slate-300"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-slate-600">New to CareerHub?</span>
+                <span className="px-2 bg-white text-slate-600">New to MyCareer?</span>
               </div>
             </div>
 

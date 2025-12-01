@@ -153,8 +153,8 @@ To run the backend using Docker:
 
 ```
 cd backend
-docker build -t careerhub-backend .
-docker run -p 8000:8000 --env-file .env careerhub-backend
+docker build -t MyCareer-backend .
+docker run -p 8000:8000 --env-file .env MyCareer-backend
 ```
 
 ### Test Credentials
