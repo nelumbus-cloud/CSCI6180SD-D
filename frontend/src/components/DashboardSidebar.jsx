@@ -18,7 +18,9 @@ export function DashboardSidebar() {
     const fetchInterviews = async () => {
         try {
             setIsLoadingInterviews(true);
-            const res = await fetch(`${BACKEND_BASE}/api/jobs/dashboard/upcoming-interviews?limit=10`);
+            const res = await fetch(`${BACKEND_BASE}/api/jobs/dashboard/upcoming-interviews?limit=10`, {
+                credentials: 'include',
+            });
             if (res.ok) {
                 const data = await res.json();
                 setUpcomingInterviews(data || []);
@@ -34,7 +36,9 @@ export function DashboardSidebar() {
     const fetchSuggestions = async () => {
         try {
             setIsLoadingSuggestions(true);
-            const res = await fetch(`${BACKEND_BASE}/api/external/jobs/suggested-matches?limit=5`);
+            const res = await fetch(`${BACKEND_BASE}/api/external/jobs/suggested-matches?limit=5`, {
+                credentials: 'include',
+            });
             if (res.ok) {
                 const data = await res.json();
                 setSuggestedJobs(data || []);

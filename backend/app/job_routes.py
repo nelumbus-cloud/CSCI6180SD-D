@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import and_
 from database import get_db
 from models import Job, User
+from auth import get_current_user
 from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime
@@ -93,17 +94,23 @@ class JobResponse(BaseModel):
         }
         return cls(**data)
 
-# default user
-DEFAULT_USER_ID = "default-user-id"
+"""Job CRUD routes scoped to the authenticated user."""
 
 #getting all jobs
 @router.get("/", response_model=List[JobResponse])
 def get_jobs(
     skip: int = 0,
     limit: int = 100,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
-    jobs = db.query(Job).filter(Job.user_id == DEFAULT_USER_ID).offset(skip).limit(limit).all()
+    jobs = (
+        db.query(Job)
+        .filter(Job.user_id == current_user.id)
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
     
     result = []
     for job in jobs:
@@ -137,12 +144,16 @@ def get_jobs(
 
 #creating new jobs
 @router.post("/", response_model=JobResponse)
-def create_job(job: JobCreate, db: Session = Depends(get_db)):
+def create_job(
+    job: JobCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
     #convert requirements list to JSON string
     requirements_json = json.dumps(job.requirements) if job.requirements else "[]"
     
     db_job = Job(
-        user_id=DEFAULT_USER_ID,
+        user_id=current_user.id,
         title=job.title,
         company=job.company,
         location=job.location,
@@ -184,8 +195,16 @@ def create_job(job: JobCreate, db: Session = Depends(get_db)):
 
 #get specific job
 @router.get("/{job_id}", response_model=JobResponse)
-def get_job(job_id: str, db: Session = Depends(get_db)):
-    job = db.query(Job).filter(Job.id == job_id, Job.user_id == DEFAULT_USER_ID).first()
+def get_job(
+    job_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    job = (
+        db.query(Job)
+        .filter(Job.id == job_id, Job.user_id == current_user.id)
+        .first()
+    )
     if not job:
         raise HTTPException(status_code=404, detail="Job not found")
     
@@ -218,8 +237,17 @@ def get_job(job_id: str, db: Session = Depends(get_db)):
 
 #update specific job
 @router.put("/{job_id}", response_model=JobResponse)
-def update_job(job_id: str, job_update: JobUpdate, db: Session = Depends(get_db)):
-    job = db.query(Job).filter(Job.id == job_id, Job.user_id == DEFAULT_USER_ID).first()
+def update_job(
+    job_id: str,
+    job_update: JobUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    job = (
+        db.query(Job)
+        .filter(Job.id == job_id, Job.user_id == current_user.id)
+        .first()
+    )
     if not job:
         raise HTTPException(status_code=404, detail="Job not found")
     
@@ -267,8 +295,16 @@ def update_job(job_id: str, job_update: JobUpdate, db: Session = Depends(get_db)
 
 #delete a specific job
 @router.delete("/{job_id}")
-def delete_job(job_id: str, db: Session = Depends(get_db)):
-    job = db.query(Job).filter(Job.id == job_id, Job.user_id == DEFAULT_USER_ID).first()
+def delete_job(
+    job_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    job = (
+        db.query(Job)
+        .filter(Job.id == job_id, Job.user_id == current_user.id)
+        .first()
+    )
     if not job:
         raise HTTPException(status_code=404, detail="job not found")
     
@@ -279,33 +315,51 @@ def delete_job(job_id: str, db: Session = Depends(get_db)):
 
 # Get upcoming interviews (multiple)
 @router.get("/dashboard/upcoming-interviews", response_model=List[JobResponse])
-def get_upcoming_interviews(limit: int = Query(10, ge=1, le=20), db: Session = Depends(get_db)):
+def get_upcoming_interviews(
+    limit: int = Query(10, ge=1, le=20),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
     """Get all upcoming interviews (jobs with interview_date in the future), sorted by date"""
     current_time = datetime.utcnow()
     
-    upcoming_jobs = db.query(Job).filter(
-        and_(
-            Job.user_id == DEFAULT_USER_ID,
-            Job.interview_date.isnot(None),
-            Job.interview_date > current_time
+    upcoming_jobs = (
+        db.query(Job)
+        .filter(
+            and_(
+                Job.user_id == current_user.id,
+                Job.interview_date.isnot(None),
+                Job.interview_date > current_time,
+            )
         )
-    ).order_by(Job.interview_date).limit(limit).all()
+        .order_by(Job.interview_date)
+        .limit(limit)
+        .all()
+    )
     
     return [JobResponse.from_orm(job) for job in upcoming_jobs]
 
 # Keep old endpoint for backward compatibility
 @router.get("/dashboard/upcoming-interview", response_model=Optional[JobResponse])
-def get_upcoming_interview(db: Session = Depends(get_db)):
+def get_upcoming_interview(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
     """Get the next upcoming interview (job with the earliest interview_date in the future)"""
     current_time = datetime.utcnow()
     
-    upcoming_job = db.query(Job).filter(
-        and_(
-            Job.user_id == DEFAULT_USER_ID,
-            Job.interview_date.isnot(None),
-            Job.interview_date > current_time
+    upcoming_job = (
+        db.query(Job)
+        .filter(
+            and_(
+                Job.user_id == current_user.id,
+                Job.interview_date.isnot(None),
+                Job.interview_date > current_time,
+            )
         )
-    ).order_by(Job.interview_date).first()
+        .order_by(Job.interview_date)
+        .first()
+    )
     
     if not upcoming_job:
         return None
@@ -314,21 +368,32 @@ def get_upcoming_interview(db: Session = Depends(get_db)):
 
 # Get suggested job match
 @router.get("/dashboard/suggested-match", response_model=Optional[JobResponse])
-def get_suggested_job_match(db: Session = Depends(get_db)):
+def get_suggested_job_match(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
     """Get a suggested job match (e.g., a job in 'In Progress' status, or the most recent one)"""
     # Strategy: Find a job in "In Progress" status that might be a good match
-    suggested_job = db.query(Job).filter(
-        and_(
-            Job.user_id == DEFAULT_USER_ID,
-            Job.status.in_(["In Progress", "Applied"])
+    suggested_job = (
+        db.query(Job)
+        .filter(
+            and_(
+                Job.user_id == current_user.id,
+                Job.status.in_(["In Progress", "Applied"]),
+            )
         )
-    ).order_by(Job.created_at.desc()).first()
+        .order_by(Job.created_at.desc())
+        .first()
+    )
     
     if not suggested_job:
         # Fallback: return the most recent job
-        suggested_job = db.query(Job).filter(
-            Job.user_id == DEFAULT_USER_ID
-        ).order_by(Job.created_at.desc()).first()
+        suggested_job = (
+            db.query(Job)
+            .filter(Job.user_id == current_user.id)
+            .order_by(Job.created_at.desc())
+            .first()
+        )
     
     if not suggested_job:
         return None

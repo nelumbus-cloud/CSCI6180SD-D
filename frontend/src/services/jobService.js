@@ -4,7 +4,9 @@ const JOBS_BASE_URL = `${API_BASE_URL}/api/jobs`;
 export const jobService = {
   async getJobs() {
     try {
-      const response = await fetch(`${JOBS_BASE_URL}/`);
+      const response = await fetch(`${JOBS_BASE_URL}/`, {
+        credentials: 'include',
+      });
       if (!response.ok) {
         const errorText = await response.text();
         throw new Error(`Failed to fetch jobs: ${response.status} ${errorText}`);
@@ -23,6 +25,7 @@ export const jobService = {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify(jobData),
       });
 
@@ -44,6 +47,7 @@ export const jobService = {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify(jobData),
       });
       if (!response.ok) {
@@ -60,6 +64,7 @@ export const jobService = {
     try {
       const response = await fetch(`${JOBS_BASE_URL}/${jobId}`, {
         method: 'DELETE',
+        credentials: 'include',
       });
       if (!response.ok) {
         throw new Error('Failed to delete job');
@@ -78,6 +83,7 @@ export const jobService = {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({ text }),
       });
 

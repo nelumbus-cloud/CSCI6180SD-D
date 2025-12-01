@@ -2,7 +2,8 @@ from fastapi import APIRouter, HTTPException, Query, Depends
 from typing import Optional, List
 from sqlalchemy.orm import Session
 from database import get_db
-from models import Job
+from models import Job, User
+from auth import get_current_user
 import httpx
 import random
 
@@ -10,19 +11,19 @@ router = APIRouter(prefix="/api/external/jobs", tags=["External Jobs"])
 
 REMOTIVE_BASE = "https://remotive.com/api/remote-jobs"
 REQUEST_TIMEOUT = 60.0  # Increased timeout to 60 seconds
-DEFAULT_USER_ID = "default-user-id"
 
 @router.get("/suggested-matches")
 async def get_suggested_job_matches(
     limit: int = Query(5, ge=1, le=10),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Get multiple suggested jobs from external API based on user's saved jobs.
     Analyzes user's saved job titles to find similar external jobs.
     """
-    # Get user's saved jobs to understand their preferences
-    user_jobs = db.query(Job).filter(Job.user_id == DEFAULT_USER_ID).all()
+    # Get this user's saved jobs to understand their preferences
+    user_jobs = db.query(Job).filter(Job.user_id == current_user.id).all()
     
     # Extract keywords from user's saved job titles
     search_keywords = []

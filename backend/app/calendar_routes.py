@@ -19,9 +19,6 @@ from dotenv import load_dotenv
 load_dotenv("../.env")
 load_dotenv("../.env.local", override=True)
 
-# Default user ID for shared jobs
-DEFAULT_USER_ID = "default-user-id"
-
 router = APIRouter(prefix="/api/calendar", tags=["calendar"])
 
 GOOGLE_REDIRECT_URI = os.getenv("GOOGLE_REDIRECT_URI", "http://localhost:8000/api/calendar/oauth2callback")
@@ -134,10 +131,10 @@ async def sync_job_to_calendar(
             detail="Google Calendar not connected. Please connect your Google Calendar first."
         )
     
-    #find job - check both user's jobs and default user jobs (for backward compatibility)
+    #find job - only from this user's jobs
     job = db.query(Job).filter(
         Job.id == job_id,
-        (Job.user_id == user.id) | (Job.user_id == DEFAULT_USER_ID)
+        Job.user_id == user.id,
     ).first()
     
     if not job:
@@ -178,10 +175,8 @@ async def sync_all_jobs_to_calendar(
             detail="Google Calendar not connected. Please connect your Google Calendar first."
         )
     
-    #get jobs - include both user's jobs and default user jobs (for backward compatibility)
-    jobs = db.query(Job).filter(
-        (Job.user_id == user.id) | (Job.user_id == DEFAULT_USER_ID)
-    ).all()
+    #get jobs - only this user's jobs
+    jobs = db.query(Job).filter(Job.user_id == user.id).all()
     
     all_results = []
     for job in jobs:
