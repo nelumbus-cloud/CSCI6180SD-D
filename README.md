@@ -484,24 +484,16 @@ This project incorporates artificial intelligence in the following ways:
 
 1. Google Gemini AI Integration: The application uses Google Gemini AI (gemini-2.5-flash model) to parse unstructured job description text and extract structured data including job title, company name, location, salary, and requirements. The AI processing occurs server-side through the `/api/jobs/parse` endpoint.
 
-2. AI-Assisted Development: Portions of this codebase were developed with assistance from GitHub Copilot, an AI pair programming tool. The AI assistance was used for:
+2. AI-Assisted Development: Some portions of this codebase were developed with assistance from GitHub Copilot, an AI pair-programming tool. The AI assistance was used for:
    - Code completion and suggestions
-   - Documentation generation
    - Bug identification and resolution
-   - Code refactoring recommendations
+   - refactoring recommendations
 
-All AI-generated code was reviewed, tested, and validated by the development team before inclusion in the final product. The development team maintains full responsibility for the functionality, security, and quality of the application.
+All AI-assisted contributions were thoroughly reviewed, tested, and validated by the development team before being included in the final product. The team retains full responsibility for the application’s functionality, security, and overall quality.
 
 ### Course Information
 
-This project was developed as part of CSCI 6180 Software Development course. The application demonstrates full-stack web development principles including:
-
-- RESTful API design
-- Database modeling and ORM usage
-- Frontend state management
-- Authentication and authorization
-- Third-party API integration
-- AI/ML integration in web applications
+This project was developed as part of CSCI 6180 Software Design and Development course. 
 
 ### Team
 
@@ -509,4 +501,4 @@ Developed by the CSCI 6180 Software Development team.
 
 ## License
 
-This project was created for educational purposes as part of CSCI 6180 Software Development course at the University.
+This project was created for educational purposes as part of CSCI 6180 Software Design and Development course at the University.
