@@ -1,127 +1,55 @@
-# CareerHub
+# MyCarrer
 
-## Job Application Tracker and Resume Builder
+## Project Description
 
-CareerHub is a full-stack web application designed to help job seekers manage their job search process. The application provides tools for tracking job applications, building professional resumes, synchronizing important dates with Google Calendar, and discovering new job opportunities.
+MyCarrer is a full-stack web application designed to help job seekers manage their job search process. The application provides tools for tracking job applications, building professional resumes, synchronizing important dates with Google Calendar, discovering new job opportunities, and managing personal notes. The system uses Google Gemini AI to automatically parse job descriptions and extract relevant information.
 
 ## Table of Contents
 
-1. [Overview](#overview)
-2. [Technology Stack](#technology-stack)
-3. [Project Structure](#project-structure)
-4. [Installation](#installation)
+1. [Prerequisites](#prerequisites)
+2. [Installation Instructions](#installation-instructions)
+3. [Execution Instructions](#execution-instructions)
+4. [Input/Output Explanation](#inputoutput-explanation)
 5. [Features](#features)
 6. [API Reference](#api-reference)
-7. [Docker Deployment](#docker-deployment)
-8. [Testing](#testing)
-9. [Contributing](#contributing)
-10. [Known Limitations](#known-limitations)
-11. [License](#license)
+7. [Troubleshooting](#troubleshooting)
+8. [Acknowledgements](#acknowledgements)
 
-## Overview
+## Prerequisites
 
-CareerHub addresses common challenges faced by job seekers during their application process. The application provides the following core functionalities:
+### Software Requirements
 
-1. Track job applications with status updates, deadlines, and notes
-2. Build and manage resumes with a section-by-section editor
-3. Sync important dates to Google Calendar to avoid missing interviews
-4. Discover new job opportunities from external job boards
-5. Parse job descriptions using AI to automatically extract application details
+The following software must be installed on your system before running the application:
 
-## Technology Stack
+| Software | Version            | Purpose 
+|----------|--------------------|---------------------------------
+| Python   | 3.11 or higher     | Backend server runtime
+| Node.js  | 18 or higher       | Frontend build and development
+| npm      | 9 or higher        | Package management for frontend
+| Git      | Any recent version | Repository cloning
 
-### Backend
+### Hardware Requirements
 
-The backend is built using the following technologies:
+| Component      | Minimum                                       | Recommended
+|----------------|-----------------------------------------------|-------------
+| RAM            | 4 GB                                          | 8 GB        
+| Storage        | 500 MB                                        | 1 GB        
+| CPU            | Dual-core processor                           | Quad-core processor
+| Network        | Internet connection required for API features | Stable broadband connection
 
-| Technology | Purpose |
-|------------|---------|
-| FastAPI | Python web framework for building REST APIs |
-| SQLAlchemy | Object-Relational Mapping for database operations |
-| SQLite | Lightweight relational database |
-| Google Gemini AI | Natural language processing for job description parsing |
-| Google Calendar API | Calendar integration for event synchronization |
+### External Services (Optional)
 
-### Frontend
+The following external services enhance functionality but are not required for basic operation:
 
-The frontend utilizes the following technologies:
+1. Google Cloud Console Account - Required for Gemini AI job parsing and Google Calendar integration
+2. Google Gemini API Key - Required for AI-powered job description parsing
+3. Google OAuth Credentials - Required for Google Calendar synchronization
 
-| Technology | Purpose |
-|------------|---------|
-| React 19 | JavaScript library for building user interfaces |
-| Vite | Build tool and development server |
-| Tailwind CSS 4 | Utility-first CSS framework |
-| Radix UI | Accessible component primitives |
-| Lucide React | Icon library |
-
-## Project Structure
-
-The project is organized into two main directories: backend and frontend.
-
-```
-CSCI6180SD-D/
-    backend/
-        app/
-            main.py                 FastAPI application entry point
-            models.py               Database models (User, Job, Resume, Note)
-            database.py             Database connection configuration
-            auth.py                 Authentication helper functions
-            auth_routes.py          Authentication endpoints (login, signup, password reset)
-            job_routes.py           Job application CRUD operations
-            resume_routes.py        Resume builder API endpoints
-            notes_routes.py         Notes API endpoints
-            calendar_routes.py      Google Calendar integration endpoints
-            calendar_service.py     Calendar synchronization logic
-            job_parser_routes.py    AI job description parser endpoint
-            gemini_service.py       Google Gemini AI integration
-            external_jobs.py        External job board integration
-        requirements.txt            Python dependencies
-        Dockerfile                  Container configuration
-        seed.py                     Database seeder script
-
-    frontend/
-        src/
-            App.jsx                 Main application component
-            Dashboard.jsx           Dashboard view component
-            components/
-                Login.jsx           Login form component
-                Signup.jsx          Registration form component
-                JobCard.jsx         Job display component
-                JobList.jsx         Job listing grid component
-                JobFormModal.jsx    Add/edit job form component
-                ResumeBuilder.jsx   Resume editor component
-                ResumePreview.jsx   Resume PDF preview component
-                NewFeed.jsx         External job listings component
-                Settings.jsx        User settings component
-                DashboardSidebar.jsx    Sidebar with interviews and suggestions
-                ui/                 Reusable UI components
-            contexts/
-                AuthContext.jsx     Authentication state management
-            services/
-                authService.js      Authentication API service
-                jobService.js       Job API service
-                resumeService.js    Resume API service
-                calendarService.js  Calendar API service
-                notesService.js     Notes API service
-        package.json                Node.js dependencies
-        vite.config.js              Vite configuration
-
-    README.md                       Project documentation
-```
-
-## Installation
-
-### Prerequisites
-
-Before installing the application, ensure the following software is installed on your system:
-
-1. Python 3.11 or higher (for the backend)
-2. Node.js 18 or higher (for the frontend)
-3. Google Cloud Console account (optional, for Gemini AI and Calendar API features)
+## Installation Instructions
 
 ### Step 1: Clone the Repository
 
-```bash
+```
 git clone https://github.com/nelumbus-cloud/CSCI6180SD-D.git
 cd CSCI6180SD-D
 ```
@@ -130,7 +58,7 @@ cd CSCI6180SD-D
 
 Navigate to the backend directory and create a virtual environment:
 
-```bash
+```
 cd backend
 python -m venv venv
 ```
@@ -138,24 +66,24 @@ python -m venv venv
 Activate the virtual environment:
 
 On Windows:
-```bash
+```
 venv\Scripts\activate
 ```
 
 On macOS/Linux:
-```bash
+```
 source venv/bin/activate
 ```
 
-Install the required dependencies:
+Install the required Python dependencies:
 
-```bash
+```
 pip install -r requirements.txt
 ```
 
 ### Step 3: Environment Configuration
 
-Create a `.env` file in the `backend/` directory with the following variables:
+Create a file named `.env` in the `backend/` directory with the following content:
 
 ```
 GEMINI_API_KEY=your_gemini_api_key_here
@@ -171,52 +99,175 @@ APP_ENV=development
 
 To obtain the required API keys:
 
-1. Gemini API Key: Visit https://aistudio.google.com/app/apikey
-2. Google OAuth Credentials: Visit https://console.cloud.google.com/, navigate to APIs and Services, then Credentials
+1. Gemini API Key: Visit https://aistudio.google.com/app/apikey and create a new API key
+2. Google OAuth Credentials: Visit https://console.cloud.google.com/, navigate to APIs and Services, then Credentials, and create OAuth 2.0 credentials
 
 ### Step 4: Database Initialization (Optional)
 
-To populate the database with sample data, run:
+To populate the database with sample data for testing:
 
-```bash
+```
 python seed.py
 ```
 
-This creates a test user and sample job application data.
+This creates a test user account and sample job application data.
 
-### Step 5: Start the Backend Server
-
-```bash
-cd app
-uvicorn main:app --reload --port 8000
-```
-
-The API will be available at http://localhost:8000. Interactive API documentation is available at http://localhost:8000/docs.
-
-### Step 6: Frontend Setup
+### Step 5: Frontend Setup
 
 Open a new terminal window and navigate to the frontend directory:
 
-```bash
+```
 cd frontend
 npm install
+```
+
+## Execution Instructions
+
+### Starting the Backend Server
+
+From the `backend/app` directory with the virtual environment activated:
+
+```
+cd backend/app
+uvicorn main:app --reload --port 8000
+```
+
+The backend API will be available at http://localhost:8000
+
+Interactive API documentation is available at http://localhost:8000/docs
+
+### Starting the Frontend Development Server
+
+From the `frontend` directory in a separate terminal:
+
+```
+cd frontend
 npm run dev
 ```
 
-The application will be accessible at http://localhost:5173.
+The application will be accessible at http://localhost:5173
 
----
+### Running with Docker (Alternative)
+
+To run the backend using Docker:
+
+```
+cd backend
+docker build -t careerhub-backend .
+docker run -p 8000:8000 --env-file .env careerhub-backend
+```
+
+### Test Credentials
+
+After running `seed.py`, you can log in with the following credentials:
+
+| Field    | Value 
+|----------|------------
+| Username | testuser
+| Password | password123
+
+## Input/Output Explanation
+
+### User Authentication
+
+Input:
+- Username: String (3-50 characters)
+- Password: String (minimum 6 characters)
+- Email: Valid email format (for registration)
+
+Output:
+- Authentication token stored in HTTP-only cookie
+- User session maintained across browser sessions
+
+### Job Application Entry
+
+Input (Manual Entry):
+- Job Title: String (required)
+- Company Name: String (required)
+- Location: String (optional)
+- Work Location: Remote/Hybrid/On-site (optional)
+- Job Type: Full-time/Part-time/Contract/Internship (optional)
+- Salary: String (optional)
+- Description: Text (optional)
+- Requirements: Comma-separated list (optional)
+- Interview Date: DateTime (optional)
+- Application Deadline: DateTime (optional)
+- Follow-up Date: DateTime (optional)
+
+Input (AI Parsing):
+- Raw job description text (any format)
+
+Output:
+- Structured job entry with extracted fields
+- Job card displayed in dashboard
+- Optional calendar events created
+
+Example Input (AI Parsing):
+```
+Software Engineer at Google
+Location: Mountain View, CA (Hybrid)
+Salary: $150,000 - $200,000
+
+We are looking for a software engineer with 3+ years of experience
+in Python and JavaScript. Must have experience with cloud platforms.
+
+Requirements:
+- Bachelor's degree in Computer Science
+- 3+ years of software development experience
+- Proficiency in Python and JavaScript
+```
+
+Example Output (Parsed Data):
+```
+{
+  "title": "Software Engineer",
+  "company": "Google",
+  "location": "Mountain View, CA",
+  "work_location": "Hybrid",
+  "salary": "$150,000 - $200,000",
+  "requirements": [
+    "Bachelor's degree in Computer Science",
+    "3+ years of software development experience",
+    "Proficiency in Python and JavaScript"
+  ]
+}
+```
+
+### Resume Builder
+
+Input:
+- Personal Information: Name, email, phone, location, LinkedIn URL, portfolio URL, summary
+- Experience: Company, position, start date, end date, description (multiple entries)
+- Education: School, degree, field of study, dates, GPA (multiple entries)
+- Skills: Skill name, proficiency level (multiple entries)
+- Projects: Project name, description, technologies, link (multiple entries)
+
+Output:
+- Formatted resume preview
+- PDF export file
+
+### Notes
+
+Input:
+- Title: String (optional, defaults to "Untitled Note")
+- Content: Text (optional)
+
+Output:
+- Saved note with timestamps
+- List of all user notes ordered by most recent
 
 ## Features
 
 ### Job Tracking
 
-The job tracking module allows users to manage their job applications. Key capabilities include:
+The job tracking module allows users to manage their job applications:
 
-1. Manual job entry or AI-assisted parsing of job descriptions
-2. Status tracking with options including Applied, Interview, Offer, and Rejected
-3. Important date management for interviews, application deadlines, and follow-up reminders
-4. Search and filter functionality across all saved jobs
+1. Manual job entry with comprehensive fields for all job details
+2. AI-assisted parsing of job descriptions using Google Gemini
+3. Status tracking with options: Applied, Interview, Offer, Rejected, In Progress
+4. Important date management for interviews, application deadlines, and follow-up reminders
+5. Search and filter functionality across all saved jobs
+6. Job statistics overview
 
 ### Resume Builder
 
@@ -224,14 +275,14 @@ The resume builder provides a structured approach to resume creation:
 
 1. Section-based editor covering Personal Information, Experience, Education, Skills, and Projects
 2. Automatic saving with debounced API calls to prevent data loss
-3. Preview functionality before downloading
+3. Real-time preview functionality
 4. PDF export capability
 
 ### Google Calendar Integration
 
 Calendar integration enables synchronization of job-related events:
 
-1. Google account connection through the Settings page
+1. Google account connection through OAuth 2.0
 2. Automatic synchronization of interview dates, deadlines, and follow-up reminders
 3. One-click calendar event creation from the dashboard sidebar
 
@@ -239,9 +290,10 @@ Calendar integration enables synchronization of job-related events:
 
 The job discovery feature helps users find new opportunities:
 
-1. Remote job listings sourced from Remotive job board
+1. Remote job listings sourced from Remotive job board API
 2. Personalized job suggestions based on saved application history
 3. Job saving functionality for future reference
+4. Search and filter by location, company, and keywords
 
 ### AI-Powered Job Parsing
 
@@ -249,9 +301,9 @@ The AI parsing feature streamlines job entry:
 
 1. Paste any job description into the Add Job form
 2. Click Parse with AI to extract title, company, location, salary, and requirements
-3. Review extracted data and save to job list
+3. Review extracted data and make adjustments before saving
 
-### Notes
+### Notes Management
 
 The notes feature allows users to create and manage personal notes:
 
@@ -260,118 +312,201 @@ The notes feature allows users to create and manage personal notes:
 3. Delete notes when no longer needed
 4. Notes are stored in the database and synced across devices
 
-## API Reference
+### User Authentication
 
-The following tables document the available API endpoints.
+Secure user authentication system:
+
+1. User registration with email verification
+2. Login with username and password
+3. Password reset via email
+4. Session management with secure HTTP-only cookies
+
+## API Reference
 
 ### Authentication Endpoints
 
-| Method | Endpoint                 | Description                   
-|--------|--------------------------|-----------------------------
-| POST   | /api/auth/signup         |Create a new user account
-| POST   | /api/auth/token          |Authenticate and receive access token
-| GET    | /api/auth/me             |Retrieve current user information
-| POST   | /api/auth/forgot-password| Request password reset email
-| POST   | /api/auth/reset-password | Reset password using token 
+| Method | Endpoint                  | Description 
+|--------|---------------------------|--------------------------------------
+| POST   | /api/auth/signup          | Create a new user account
+| POST   | /api/auth/token           | Authenticate and receive access token
+| GET    | /api/auth/me              | Retrieve current user information
+| POST   | /api/auth/forgot-password | Request password reset email
+| POST   | /api/auth/reset-password  | Reset password using token
 
 ### Job Management Endpoints
 
-| Method | Endpoint       | Description 
-|--------|----------------|-------------
-| GET    | /api/jobs/     | Retrieve all jobs for current user
-| POST   | /api/jobs/     | Create a new job entry
-| GET    | /api/jobs/{id} | Retrieve a specific job by ID
-| PUT    | /api/jobs/{id} | Update an existing job
-| DELETE | /api/jobs/{id} | Delete a job entry
-| POST   | /api/jobs/parse| Parse job description using AI
+| Method | Endpoint        | Description 
+|--------|-----------------|---------------------------------------
+| GET    | /api/jobs/      | Retrieve all jobs for current user
+| POST   | /api/jobs/      | Create a new job entry
+| GET    | /api/jobs/{id}  | Retrieve a specific job by ID
+| PUT    | /api/jobs/{id}  | Update an existing job
+| DELETE | /api/jobs/{id}  | Delete a job entry
+| POST   | /api/jobs/parse | Parse job description using AI
 
 ### Resume Endpoints
 
-| Method | Endpoint               | Description 
-|--------|------------------------|------------------------------------
-| GET    | /api/resume/           | Retrieve user resume 
-| POST   | /api/resume/           |Create or update complete resume
-| PUT    | /api/resume/personal   | Update personal information section
-| PUT    | /api/resume/experience | Update work experience section
-| PUT    | /api/resume/education  | Update education section
-| PUT    | /api/resume/skills     | Update skills section
-| PUT    | /api/resume/projects   | Update projects section
-
-### Calendar Endpoints
-
-| Method | Endpoint                   |Description 
-|--------|----------------------------|-------------------------------
-| GET    | /api/calendar/connect      | Initiate Google OAuth flow
-| GET    | /api/calendar/status       | Check calendar connection status
-| POST   | /api/calendar/sync/job/{id}| Synchronize job dates to calendar
-| DELETE | /api/calendar/disconnect   | Disconnect Google Calendar
+| Method | Endpoint                | Description 
+|--------|-------------------------|------------------------
+| GET    |/api/resume/             | Retrieve user resume 
+| POST   | /api/resume/            | Create or update complete resume
+| PUT    | /api/resume/personal    | Update personal information section
+| PUT    | /api/resume/experience  | Update work experience section
+| PUT    | /api/resume/education   | Update education section
+| PUT    | /api/resume/skills      | Update skills section
+| PUT    | /api/resume/projects    | Update projects section
 
 ### Notes Endpoints
 
-| Method | Endpoint         | Description
-|--------|------------------|----------------------------------
-| GET    | /api/notes/      | Retrieve all notes for current user
-| POST   | /api/notes/      | Create a new note
-| GET    | /api/notes/{id}  | Retrieve a specific note by ID
-| PUT    | /api/notes/{id}  | Update an existing note
-| DELETE | /api/notes/{id}  | Delete a note
+| Method | Endpoint        | Description 
+|--------|-----------------|------------------------------------
+| GET    | /api/notes/     | Retrieve all notes for current user
+| POST   | /api/notes/     | Create a new note 
+| GET    | /api/notes/{id} | Retrieve a specific note by ID
+| PUT    | /api/notes/{id} | Update an existing note
+| DELETE | /api/notes/{id} | Delete a note
+
+### Calendar Endpoints
+
+| Method | Endpoint                    | Description 
+|--------|-----------------------------|--------------
+| GET    | /api/calendar/connect       | Initiate Google OAuth flow 
+| GET    | /api/calendar/status        | Check calendar connection status
+| POST   | /api/calendar/sync/job/{id} | Synchronize job dates to calendar
+| DELETE | /api/calendar/disconnect    | Disconnect Google Calendar
 
 ### External Jobs Endpoints
 
-| Method | Endpoint                             | Description
-|--------|--------------------------------------|----------------------------------
+| Method | Endpoint                             | Description 
+|--------|--------------------------------------|-------------
 | GET    | /api/external/jobs/suggested-matches | Retrieve AI-suggested job matches
 
-## Docker Deployment
+## Troubleshooting
 
-If you prefer containers:
+### Common Errors and Solutions
 
-```bash
+#### Backend Server Fails to Start
+
+Error: `ModuleNotFoundError: No module named 'fastapi'`
+
+Solution: Ensure the virtual environment is activated and dependencies are installed:
+```
 cd backend
-docker build -t careerhub-backend .
-docker run -p 8000:8000 --env-file .env careerhub-backend
+venv\Scripts\activate
+pip install -r requirements.txt
 ```
 
----
+#### Database Connection Error
 
-## Test Credentials
+Error: `sqlalchemy.exc.OperationalError: unable to open database file`
 
-After running `seed.py`, you can log in with:
-- **Username**: `testuser`
-- **Password**: `password123`
+Solution: Ensure you are running the server from the correct directory:
+```
+cd backend/app
+uvicorn main:app --reload
+```
 
----
+#### CORS Error in Browser Console
 
-## Contributing
+Error: `Access to fetch at 'http://localhost:8000' from origin 'http://localhost:5173' has been blocked by CORS policy`
 
-This is a course project for CSCI 6180 (Software Development). Feel free to fork and improve!
+Solution: Ensure the backend server is running on port 8000. The CORS configuration allows requests from localhost:5173.
 
-1. Fork the repo
-2. Create a feature branch (`git checkout -b feature/cool-thing`)
-3. Commit your changes (`git commit -m 'Add cool thing'`)
-4. Push to the branch (`git push origin feature/cool-thing`)
-5. Open a Pull Request
+#### Gemini API Key Error
 
----
+Error: `GEMINI_API_KEY environment variable is not set`
 
-## Known Issues & Limitations
+Solution: Create a `.env` file in the `backend/` directory with your Gemini API key:
+```
+GEMINI_API_KEY=your_actual_api_key
+```
 
-- Resume PDF export works best in Chrome/Edge
-- Google Calendar requires OAuth setup in Google Cloud Console
-- External job API (Remotive) has rate limits — suggestions may be slow
+#### Google Calendar Connection Failed
 
----
+Error: `calendar_error=true in URL after OAuth redirect`
+
+Solution: 
+1. Verify Google OAuth credentials are correctly configured in `.env`
+2. Ensure the redirect URI matches exactly: `http://localhost:8000/api/calendar/oauth2callback`
+3. Enable the Google Calendar API in Google Cloud Console
+
+#### Frontend Build Errors
+
+Error: `npm ERR! ERESOLVE unable to resolve dependency tree`
+
+Solution: Clear npm cache and reinstall:
+```
+cd frontend
+rm -rf node_modules package-lock.json
+npm install
+```
+
+#### Resume PDF Export Not Working
+
+Error: PDF preview shows blank or fails to generate
+
+Solution: Use Chrome or Edge browser for best compatibility. Firefox may have issues with certain PDF generation features.
+
+#### External Job Suggestions Loading Slowly
+
+Error: Job suggestions take a long time to load or timeout
+
+Solution: The Remotive API has rate limits. Wait a few minutes and try again. This is a known limitation of the external API.
+
+## Acknowledgements
+
+### Technologies and Libraries
+
+This project was built using the following open-source technologies:
+
+Backend:
+- FastAPI (https://fastapi.tiangolo.com/) - Python web framework
+- SQLAlchemy (https://www.sqlalchemy.org/) - Database ORM
+- Pydantic (https://pydantic.dev/) - Data validation
+- python-jose (https://github.com/mpdavis/python-jose) - JWT token handling
+- passlib (https://passlib.readthedocs.io/) - Password hashing
+
+Frontend:
+- React (https://react.dev/) - UI library
+- Vite (https://vitejs.dev/) - Build tool
+- Tailwind CSS (https://tailwindcss.com/) - CSS framework
+- Radix UI (https://www.radix-ui.com/) - Accessible components
+- Lucide React (https://lucide.dev/) - Icon library
+
+External APIs:
+- Google Gemini AI (https://ai.google.dev/) - Job description parsing
+- Google Calendar API (https://developers.google.com/calendar) - Calendar integration
+- Remotive API (https://remotive.com/) - Remote job listings
+
+### AI Disclaimer
+
+This project incorporates artificial intelligence in the following ways:
+
+1. Google Gemini AI Integration: The application uses Google Gemini AI (gemini-2.5-flash model) to parse unstructured job description text and extract structured data including job title, company name, location, salary, and requirements. The AI processing occurs server-side through the `/api/jobs/parse` endpoint.
+
+2. AI-Assisted Development: Portions of this codebase were developed with assistance from GitHub Copilot, an AI pair programming tool. The AI assistance was used for:
+   - Code completion and suggestions
+   - Documentation generation
+   - Bug identification and resolution
+   - Code refactoring recommendations
+
+All AI-generated code was reviewed, tested, and validated by the development team before inclusion in the final product. The development team maintains full responsibility for the functionality, security, and quality of the application.
+
+### Course Information
+
+This project was developed as part of CSCI 6180 Software Development course. The application demonstrates full-stack web development principles including:
+
+- RESTful API design
+- Database modeling and ORM usage
+- Frontend state management
+- Authentication and authorization
+- Third-party API integration
+- AI/ML integration in web applications
+
+### Team
+
+Developed by the CSCI 6180 Software Development team.
 
 ## License
 
-This project was created for educational purposes as part of CSCI 6180 Software Development course.
-
----
-
-## Team
-
-Built with coffee and late nights by the CSCI 6180 team.
-
----
-
-*Happy job hunting!
+This project was created for educational purposes as part of CSCI 6180 Software Development course at the University.
